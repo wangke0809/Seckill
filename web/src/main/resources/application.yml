@@ -1,0 +1,13 @@
+spring:
+  profiles:
+    active: @package.environment@
+
+mybatis:
+  mapper-locations: classpath*:com/bytecamp/dao/xml/*Mapper.xml
+  type-aliases-package: com.bytecamp.dao
+
+
+
+
+
+  

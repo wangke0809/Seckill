@@ -6,9 +6,9 @@ spring:
   application:
     name: seckill
   datasource:
-    url: jdbc:mysql://123.207.158.246:3306/db?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&rewriteBatchedStatements=TRUE
+    url: jdbc:mysql://123.207.158.246:3306/renrenbitlocal?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&rewriteBatchedStatements=TRUE
     username: root
-    password: xxxx
+    password: wangke123abcd
     druid:
       # 连接池的配置信息
       # 初始化大小，最小，最大

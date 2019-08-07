@@ -1,5 +1,6 @@
-package com.bytecamp.web;
+package com.bytecamp;
 
+import com.bytecamp.web.WebApplication;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -10,6 +11,6 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @date 2019-07-27 15:57
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(classes = WebApplication.class)
 public class BaseTest {
 }

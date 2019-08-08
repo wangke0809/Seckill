@@ -31,4 +31,9 @@ public class OrderServiceTest extends BaseTest {
     public void payOrder() {
         orderService.payOrder("test");
     }
+
+    @Test
+    public void delAll(){
+        orderService.delAllOrders();
+    }
 }

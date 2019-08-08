@@ -1,4 +1,4 @@
-package com.bytecamp.biz.emum;
+package com.bytecamp.biz.enums;
 
 /**
  * @author wangke

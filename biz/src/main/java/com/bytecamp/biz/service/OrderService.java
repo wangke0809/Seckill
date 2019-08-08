@@ -36,4 +36,10 @@ public interface OrderService {
      * @return
      */
     List<Order> getAllOrders();
+
+    /**
+     * 删除所有
+     * @return
+     */
+    Boolean delAllOrders();
 }

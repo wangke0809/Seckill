@@ -1,6 +1,6 @@
 package com.bytecamp.biz.service.impl;
 
-import com.bytecamp.biz.emum.OrderStatusEnum;
+import com.bytecamp.biz.enums.OrderStatusEnum;
 import com.bytecamp.biz.service.OrderService;
 import com.bytecamp.dao.OrderMapper;
 import com.bytecamp.model.Order;
@@ -84,5 +84,17 @@ public class OrderServiceImpl implements OrderService {
         OrderSearch search = new OrderSearch();
         List<Order> list = _mapper.selectByExample(search);
         return list;
+    }
+
+    /**
+     * 删除所有
+     *
+     * @return
+     */
+    @Override
+    public Boolean delAllOrders() {
+        OrderSearch search = new OrderSearch();
+        _mapper.deleteByExample(search);
+        return true;
     }
 }

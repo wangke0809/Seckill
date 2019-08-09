@@ -10,7 +10,7 @@ import javax.annotation.Resource;
 
 /**
  * @author wangke
- * @description: TODO
+ * @description: MQServiceTest
  * @date 2019-08-08 21:39
  */
 public class MQServiceTest extends BaseTest {

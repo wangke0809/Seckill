@@ -7,7 +7,9 @@ mybatis:
   type-aliases-package: com.bytecamp.dao
 
 
-
-
+seckill:
+  product:
+    # 商品缓存时间
+    cache-time: 10
 
   

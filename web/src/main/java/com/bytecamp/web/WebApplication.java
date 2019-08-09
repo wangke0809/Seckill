@@ -21,8 +21,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 @ServletComponentScan
 @ComponentScan(basePackages={"com.bytecamp"})
-//@EnableScheduling
-//@EnableJms
+@EnableScheduling
 public class WebApplication {
     public static void main(String[] args) {
         SpringApplication.run(WebApplication.class, args);

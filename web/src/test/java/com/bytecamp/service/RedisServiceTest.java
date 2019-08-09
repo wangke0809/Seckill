@@ -56,4 +56,14 @@ public class RedisServiceTest extends BaseTest {
         System.out.println(res);
     }
 
+    @Test
+    public void testDecrNull(){
+        // 不存在的键值自减直接返回 -1
+        System.out.println(redisService.decr("aaa"));
+    }
+
+    @Test
+    public void keys(){
+        System.out.println(redisService.getAllKeys("s*"));
+    }
 }

@@ -7,6 +7,7 @@ import com.bytecamp.biz.util.RedisKeyUtil;
 import com.bytecamp.dao.ProductMapper;
 import com.bytecamp.model.Product;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -25,6 +26,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Resource
     RedisService redisService;
+
+    @Value("${seckill.product.cache-time}")
+    private int productCacheTime;
 
     /**
      * 商品表仅查询商品信息
@@ -55,8 +59,7 @@ public class ProductServiceImpl implements ProductService {
         if (bean == null) {
             bean = _mapper.selectByPrimaryKey(id);
             // TODO：缓存多久合适
-            redisService.setex(key, 5, JSON.toJSONString(bean));
-
+            redisService.setex(key, productCacheTime, JSON.toJSONString(bean));
         }
 
         return bean;

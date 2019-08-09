@@ -16,11 +16,9 @@ public interface OrderService {
      *
      * @param uid
      * @param pid
-     * @param detail
-     * @param price
      * @return 订单号
      */
-    String addOrder(int uid, int pid, String detail, Integer price);
+    String addOrder(Integer uid, Integer pid);
 
     /**
      * 订单支付
@@ -42,4 +40,12 @@ public interface OrderService {
      * @return
      */
     Boolean delAllOrders();
+
+    /**
+     * 是否存在 uid 购买 pid
+     * @param uid
+     * @param pid
+     * @return
+     */
+    Boolean orderExists(Integer uid, Integer pid);
 }

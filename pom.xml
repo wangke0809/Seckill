@@ -83,7 +83,6 @@
                 <artifactId>spring-boot-starter-activemq</artifactId>
                 <version>${boot.version}</version>
             </dependency>
-
             <!-- 用于监测服务器状态 -->
 <!--            <dependency>-->
 <!--                <groupId>de.codecentric</groupId>-->

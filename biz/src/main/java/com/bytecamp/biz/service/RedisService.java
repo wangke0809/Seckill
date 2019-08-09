@@ -6,10 +6,7 @@ import org.springframework.stereotype.Service;
 import redis.clients.jedis.*;
 
 import javax.annotation.Resource;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author wangke
@@ -29,6 +26,25 @@ public class RedisService {
         shardedJedis.disconnect();
     }
 
+    /**
+     * 获取集群上所有键值，keys 命令会挂起 redis
+     * @param pattern
+     * @return
+     */
+    public Set<String> getAllKeys(String pattern){
+        ShardedJedis shardedJedis = redisDataSource.getRedisClient();
+
+        Collection<Jedis> list = shardedJedis.getAllShards();
+        Set<String> result = new HashSet<>(2000);
+        for(Jedis jedis : list){
+            Set<String> tmp = jedis.keys(pattern);
+            for(String k : tmp){
+                result.add(k);
+            }
+        }
+
+        return result;
+    }
     /**
      * 定时任务锁
      * @param key

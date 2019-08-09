@@ -5,6 +5,8 @@ import com.bytecamp.biz.service.OrderService;
 import org.junit.Test;
 
 import javax.annotation.Resource;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * @author wangke
@@ -18,7 +20,7 @@ public class OrderServiceTest extends BaseTest {
 
     @Test
     public void addOrder() {
-        String id = orderService.addOrder(1, 2, "aaa啊啊啊", 20);
+        String id = orderService.addOrder(1, 2);
         System.out.println(id);
     }
 
@@ -33,7 +35,25 @@ public class OrderServiceTest extends BaseTest {
     }
 
     @Test
-    public void delAll(){
+    public void delAll() {
         orderService.delAllOrders();
+    }
+
+    @Test
+    public void orderExists() {
+        System.out.println(orderService.orderExists(1, 1));
+    }
+
+    /**
+     * 测试并发下单
+     */
+    @Test
+    public void addManyManyManyOrder() {
+        ExecutorService executorService = Executors.newFixedThreadPool(200);
+        for (int i = 0; i < 200; i++) {
+            executorService.execute(() -> {
+                orderService.addOrder(175230, 176472613);
+            });
+        }
     }
 }

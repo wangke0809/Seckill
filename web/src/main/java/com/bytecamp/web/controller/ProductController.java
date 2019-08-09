@@ -3,6 +3,7 @@ package com.bytecamp.web.controller;
 import com.bytecamp.biz.service.ProductService;
 import com.bytecamp.model.Product;
 import com.bytecamp.web.vo.ProductVO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +18,7 @@ import javax.annotation.Resource;
  * @date 2019-08-08 22:31
  */
 @Controller
+@Slf4j
 public class ProductController {
 
     @Resource
@@ -35,6 +37,8 @@ public class ProductController {
             ProductVO vo = new ProductVO();
             BeanUtils.copyProperties(product, vo);
             return vo;
+        }else{
+            log.error("pid: {} 商品不存在", pid);
         }
         return null;
     }

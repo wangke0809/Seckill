@@ -30,7 +30,7 @@ public class ProductController {
     @ResponseBody
     @RequestMapping(value = "/product", method = RequestMethod.GET)
     public ProductVO product(Integer pid) {
-        Product product = productService.selectByProductId(pid);
+        Product product = productService.getProductById(pid);
         if (product != null) {
             ProductVO vo = new ProductVO();
             BeanUtils.copyProperties(product, vo);

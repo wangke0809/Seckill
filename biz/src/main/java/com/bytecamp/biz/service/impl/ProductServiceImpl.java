@@ -1,8 +1,12 @@
 package com.bytecamp.biz.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.bytecamp.biz.service.ProductService;
+import com.bytecamp.biz.service.RedisService;
+import com.bytecamp.biz.util.RedisKeyUtil;
 import com.bytecamp.dao.ProductMapper;
 import com.bytecamp.model.Product;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -13,10 +17,14 @@ import javax.annotation.Resource;
  * @date 2019-08-08 01:55
  */
 @Service
+@Slf4j
 public class ProductServiceImpl implements ProductService {
 
     @Resource(name = "productMapper")
     private ProductMapper _mapper;
+
+    @Resource
+    RedisService redisService;
 
     /**
      * 商品表仅查询商品信息
@@ -25,11 +33,32 @@ public class ProductServiceImpl implements ProductService {
      * @return
      */
     @Override
-    public Product selectByProductId(Integer id) {
+    public Product getProductById(Integer id) {
         if (id == null || id < 0) {
             return null;
         }
-        Product bean = _mapper.selectByPrimaryKey(id);
+        // 首先从缓存中查询
+        String key = String.format(RedisKeyUtil.PRODUCT, id);
+        String product = redisService.get(key);
+        Product bean = null;
+        // 命中缓存
+        if (product != null) {
+            try {
+                bean = JSON.parseObject(product, Product.class);
+                log.info("商品 {} 命中缓存", id);
+                return bean;
+            } catch (Exception e) {
+                log.error("反序列化商品信息失败", e);
+            }
+        }
+        // 缓存不存在
+        if (bean == null) {
+            bean = _mapper.selectByPrimaryKey(id);
+            // TODO：缓存多久合适
+            redisService.setex(key, 5, JSON.toJSONString(bean));
+
+        }
+
         return bean;
     }
 }

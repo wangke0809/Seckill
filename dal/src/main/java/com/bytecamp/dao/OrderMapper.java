@@ -4,6 +4,7 @@ import com.bytecamp.model.Order;
 import com.bytecamp.model.OrderSearch;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Update;
 
 public interface OrderMapper {
     long countByExample(OrderSearch example);
@@ -31,4 +32,7 @@ public interface OrderMapper {
     int upsert(Order record);
 
     int upsertSelective(Order record);
+
+    @Update("truncate table orders")
+    void truncate();
 }

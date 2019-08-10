@@ -2,6 +2,7 @@ package com.bytecamp.service;
 
 import com.bytecamp.BaseTest;
 import com.bytecamp.biz.service.OrderService;
+import com.bytecamp.dao.OrderMapper;
 import org.junit.Test;
 
 import javax.annotation.Resource;
@@ -19,6 +20,9 @@ public class OrderServiceTest extends BaseTest {
 
     @Resource
     OrderService orderService;
+
+    @Resource(name = "orderMapper")
+    private OrderMapper _mapper;
 
     @Test
     public void addOrder() {
@@ -73,5 +77,10 @@ public class OrderServiceTest extends BaseTest {
         }
         System.out.println("res " + res);
         executorService.shutdown();
+    }
+
+    @Test
+    public void truncate(){
+        _mapper.truncate();
     }
 }

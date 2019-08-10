@@ -1,5 +1,6 @@
 package com.bytecamp.biz.dto;
 
+import com.bytecamp.model.Product;
 import lombok.Data;
 
 /**
@@ -20,7 +21,7 @@ public class OrderDto {
     int uid;
 
     /**
-     * 商品i d
+     * 商品信息
      */
-    int pid;
+    Product product;
 }

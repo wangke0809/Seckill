@@ -57,10 +57,18 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public String addOrder(Integer uid, Integer pid) {
 
-        Product product = productService.getProductById(pid);
+        Product product = null;
+
+        try {
+            product = productService.getProductById(pid);
+            log.info("[ addOrder] 获取商品成功 {} ", pid);
+        } catch (Exception e) {
+            log.error("[ addOrder] 获取商品失败 {} ", pid);
+        }
 
         // 商品是否存在
         if (product == null) {
+            log.info("[ addOrder] 商品 null");
             return null;
         }
 
@@ -71,7 +79,7 @@ public class OrderServiceImpl implements OrderService {
         // 仍然往下走流程，在 redis 层判断
         if (stockHashMap.keySet().contains(productId)
                 && stockHashMap.get(productId)) {
-
+            log.info("[ addOrder]  {} hashmap 中判断已经售罄", pid);
             return null;
         }
 
@@ -88,22 +96,36 @@ public class OrderServiceImpl implements OrderService {
         // if (redisService.exists(uidPidKey)) {
         //    return null;
         // }
-        if (redisService.set(uidPidKey, "1", "NX", "EX", 9999) == null) {
+
+        // 判断是否已经购买
+        if (redisService.set(uidPidKey, "1", "NX") == null) {
+            log.info("[ addOrder ] uid {} pid {} 重复下单", uid, productId);
             return null;
         }
 
         // 商品库存是否存储在 redis 中
-        if (!redisService.exists(key)) {
-            redisService.set(key, product.getCount().toString());
+        if (!stockHashMap.keySet().contains(productId)) {
+            redisService.set(key, product.getCount().toString(), "NX");
+            stockHashMap.put(productId, false);
         }
 
         // 减库存，判断库存是否足够
         Long stock = redisService.decr(key);
 
+        if (stock == null) {
+            log.error("[ addOrder] 从 redis 获取库存信息失败");
+            // 删除 uid 与 pid 锁定关系
+            redisService.del(uidPidKey);
+            return null;
+        }
+
         // 库存不足够
         if (stock < 0) {
             // 记录到内存
             stockHashMap.put(productId, true);
+            // 删除 uid 与 pid 锁定关系
+            redisService.del(uidPidKey);
+            log.info("[ addOrder ] {} 库存不够，商品售罄", uidPidKey);
             return null;
         }
 
@@ -115,10 +137,6 @@ public class OrderServiceImpl implements OrderService {
         // }
 
         // 库存足够，进行下单！
-
-        // uid 购买过 pid
-        redisService.set(uidPidKey, "1");
-
         // 通过 mq 异步下单
         // TODO: gen order id by time and pid
         String orderId = UUID.randomUUID().toString().substring(0, 25);
@@ -126,14 +144,24 @@ public class OrderServiceImpl implements OrderService {
         OrderDto orderDto = new OrderDto();
 
         orderDto.setId(orderId);
-        orderDto.setPid(productId);
+        orderDto.setProduct(product);
         orderDto.setUid(uid);
 
-        log.info("发送异步下单 {}", JSON.toJSONString(orderDto));
+        log.info("异步下单 {}", JSON.toJSONString(orderDto));
 
-        mqService.sendMessageToQueue(orderDto);
+        try {
+            mqService.sendMessageToQueue(orderDto);
+            return orderId;
+        } catch (Exception e) {
+            // TODO: 恢复锁定的库存
+            // 如果恢复，需要考虑当库存为负数时的情况，考虑到负数和集群
+            // 需要另一个字段判断是否有库存，有再减库存，查询库存是请求两次 redis
 
-        return orderId;
+            // 删除 uid 与 pid 锁定关系
+            redisService.del(uidPidKey);
+            return null;
+        }
+
     }
 
     /**
@@ -214,7 +242,7 @@ public class OrderServiceImpl implements OrderService {
 
             OrderDto orderDto = JSON.parseObject(str, OrderDto.class);
 
-            Product product = productService.getProductById(orderDto.getPid());
+            Product product = orderDto.getProduct();
 
             if (product == null) {
                 return;
@@ -225,7 +253,7 @@ public class OrderServiceImpl implements OrderService {
 
             order.setId(orderDto.getId());
             order.setUid(orderDto.getUid());
-            order.setPid(orderDto.getPid());
+            order.setPid(orderDto.getProduct().getId());
             order.setDetail(product.getDetail());
             order.setPrice(product.getPrice());
             order.setOrderStatus(OrderStatusEnum.UNFINISH.getValue());
@@ -234,6 +262,7 @@ public class OrderServiceImpl implements OrderService {
             if (_mapper.insert(order) > 0) {
                 log.info("{} 异步下单成功", orderDto.getId());
             } else {
+                // TODO: 异常如何回退
                 log.error("{} 异步下单失败", orderDto.getId());
             }
         } catch (Exception e) {

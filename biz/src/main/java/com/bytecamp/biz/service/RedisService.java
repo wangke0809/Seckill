@@ -90,6 +90,25 @@ public class RedisService {
         return result;
     }
 
+    public String set(String key, String value, String nxxx) {
+        String result = null;
+
+        ShardedJedis shardedJedis = redisDataSource.getRedisClient();
+        if (shardedJedis == null) {
+            return result;
+        }
+        boolean broken = false;
+        try {
+            result = shardedJedis.set(key, value,nxxx);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            broken = true;
+        } finally {
+            redisDataSource.returnResource(shardedJedis, broken);
+        }
+        return result;
+    }
+
     /**
      * Set the string value as value of the key. The string can't be longer than 1073741824 bytes (1
      * GB).

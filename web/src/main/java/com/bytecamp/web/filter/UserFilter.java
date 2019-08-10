@@ -6,6 +6,7 @@ import com.bytecamp.biz.service.RedisService;
 import com.bytecamp.biz.util.RedisKeyUtil;
 import com.bytecamp.web.query.UidQuery;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
@@ -16,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.UUID;
 
 /**
  * @author wangke
@@ -29,10 +31,16 @@ public class UserFilter implements Filter {
     @Resource
     RedisService redisService;
 
+    private final static String SESSION_KEY = "sessionId";
+
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
         HttpServletResponse httpServletResponse = (HttpServletResponse) servletResponse;
+
+        // 全链路日志，先简单使用 uuid
+        String token = UUID.randomUUID().toString().replace("-", "");
+        MDC.put(SESSION_KEY, token);
 
         String ua = httpServletRequest.getHeader("User-Agent");
         // ua 反作弊判断，正常情况下在 Nginx 层已经被过滤
@@ -95,6 +103,8 @@ public class UserFilter implements Filter {
         }
 
         filterChain.doFilter(servletRequest, servletResponse);
+
+        MDC.remove(SESSION_KEY);
 
     }
 

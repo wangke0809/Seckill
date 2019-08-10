@@ -155,7 +155,7 @@ public class OrderServiceImpl implements OrderService {
         orderDto.setProduct(product);
         orderDto.setUid(uid);
 
-        log.info("异步下单 {}", JSON.toJSONString(orderDto));
+        log.info("异步下单 orderId {} uid {} pid {}", orderId, uid, pid);
 
         try {
             mqService.sendMessageToQueue(orderDto);
@@ -308,9 +308,10 @@ public class OrderServiceImpl implements OrderService {
         TextMessage textMessage = (TextMessage) message;
         try {
             String str = textMessage.getText();
-            log.info("接收到订单 {}", str);
 
             OrderDto orderDto = JSON.parseObject(str, OrderDto.class);
+
+            log.info("接收到订单 orderId {}", orderDto.getId());
 
             Product product = orderDto.getProduct();
 

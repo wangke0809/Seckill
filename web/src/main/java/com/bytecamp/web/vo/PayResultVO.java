@@ -15,10 +15,10 @@ public class PayResultVO {
      * 0：成功
      * 1:  失败
      */
-    int code;
+    private int code;
 
     /**
      * 支付 token
      */
-    String token;
+    private String token;
 }

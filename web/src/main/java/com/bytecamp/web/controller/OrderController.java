@@ -1,20 +1,26 @@
 package com.bytecamp.web.controller;
 
 import com.bytecamp.biz.service.OrderService;
+import com.bytecamp.model.Order;
 import com.bytecamp.web.enums.OrderStatusEnum;
 import com.bytecamp.web.enums.PayStatusEnum;
 import com.bytecamp.web.query.OrderQuery;
 import com.bytecamp.web.query.PayQuery;
 import com.bytecamp.web.util.JsonRequestUtil;
+import com.bytecamp.web.vo.AllOrderVO;
 import com.bytecamp.web.vo.OrderResultVO;
+import com.bytecamp.web.vo.OrderVO;
 import com.bytecamp.web.vo.PayResultVO;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author wangke
@@ -78,5 +84,27 @@ public class OrderController {
             log.error("[ pay ] 异常 {}", payQuery, e);
             return null;
         }
+    }
+
+    @ResponseBody
+    @GetMapping("/result")
+    public AllOrderVO result() {
+        AllOrderVO allOrderVO = new AllOrderVO();
+        List<OrderVO> data = new ArrayList<>();
+        allOrderVO.setData(data);
+
+        try {
+            List<Order> orders = orderService.getAllOrders();
+            for (Order order : orders) {
+                OrderVO vo = new OrderVO();
+                BeanUtils.copyProperties(order, vo);
+                vo.setOrderId(order.getId());
+                vo.setStatus(order.getOrderStatus().intValue());
+                data.add(vo);
+            }
+        } catch (Exception e) {
+            log.error("result 异常", e);
+        }
+        return allOrderVO;
     }
 }

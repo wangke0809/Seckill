@@ -16,11 +16,11 @@ public class OrderResultVO {
      * 0：成功
      * 1:  没有剩余
      */
-    int code;
+    private int code;
 
     /**
      * 订单编号
      */
     @JsonProperty("order_id")
-    String orderId;
+    private String orderId;
 }

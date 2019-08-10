@@ -13,5 +13,5 @@ public class UidQuery {
     /**
      * 用户 id
      */
-    Integer uid;
+    private Integer uid;
 }

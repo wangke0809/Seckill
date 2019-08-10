@@ -2,6 +2,8 @@ package com.bytecamp.biz.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.bytecamp.biz.dto.OrderDto;
+import com.bytecamp.biz.dto.PayDto;
+import com.bytecamp.biz.dto.TokenDto;
 import com.bytecamp.biz.enums.OrderStatusEnum;
 import com.bytecamp.biz.service.MQService;
 import com.bytecamp.biz.service.OrderService;
@@ -12,9 +14,12 @@ import com.bytecamp.dao.OrderMapper;
 import com.bytecamp.model.Order;
 import com.bytecamp.model.OrderSearch;
 import com.bytecamp.model.Product;
+import com.bytecamp.util.HttpUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import javax.jms.Message;
@@ -43,6 +48,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Resource
     RedisService redisService;
+
+    @Value("${seckill.token.url}")
+    String tokenUrl;
 
     // 内存存储库存状态
     private HashMap<Integer, Boolean> stockHashMap = new HashMap<>(2000);
@@ -171,17 +179,79 @@ public class OrderServiceImpl implements OrderService {
      * @return
      */
     @Override
-    public String payOrder(String orderId) {
-        Order order = _mapper.selectByPrimaryKey(orderId);
+    public String payOrder(String orderId, Integer uid, Integer price) {
 
-        // TODO: get token
-        String token = "xx";
+        if (StringUtils.isEmpty(orderId) || price == null
+                || price < 0 || uid == null || uid < 0) {
+            return null;
+        }
+
+        Order order;
+
+        try {
+            order = _mapper.selectByPrimaryKey(orderId);
+        } catch (Exception e) {
+            log.error("[ payOrder ] 查询订单异常 {}", orderId, e);
+            return null;
+        }
+
+        if (order == null) {
+            log.error("[ payOrder ] 查询订单失败 {}", orderId);
+            return null;
+        }
+
+        if (order.getOrderStatus().equals((Byte) OrderStatusEnum.FINISH.getValue())) {
+            log.error("[ payOrder ] 已经支付 {}", orderId);
+            return null;
+        }
+
+        if (order.getUid() != null && !order.getUid().equals(uid)) {
+            log.error("[ payOrder ] 支付用户不一致 {}", orderId);
+            return null;
+        }
+
+        if (!price.equals(order.getPrice())) {
+            log.error("[ payOrder ] 支付金额不一致 {}", orderId);
+            return null;
+        }
+
+        PayDto payDto = new PayDto();
+
+        payDto.setOrderId(orderId);
+        payDto.setPrice(order.getPrice());
+        payDto.setUid(order.getUid());
+
+        TokenDto tokenDto = null;
+
+        try {
+            String token = HttpUtil.postJson(tokenUrl, payDto);
+            tokenDto = JSON.parseObject(token, TokenDto.class);
+
+        } catch (Exception e) {
+            // TODO: 增加重试机制
+            log.error("[ payOrder ] 获取 token 异常 {}", orderId, e);
+            return null;
+        }
+
+        if (tokenDto == null || tokenDto.getToken() == null) {
+            log.error("[ payOrder ] 获取 token 失败 {}", orderId);
+        }
+
+        log.info("[ payOrder ] 成功获取 token {}", tokenDto.getToken());
+
         order.setOrderStatus(OrderStatusEnum.FINISH.getValue());
-        order.setToken(token);
+        order.setToken(tokenDto.getToken());
 
-        if (_mapper.updateByPrimaryKey(order) > 0) {
-            return token;
-        } else {
+        try {
+            if (_mapper.updateByPrimaryKey(order) > 0) {
+                log.info("[ payOrder ] 订单更新成功 {}", order.getId());
+                return tokenDto.getToken();
+            } else {
+                log.error("[ payOrder ] 订单更新失败 {}", order.getId());
+                return null;
+            }
+        } catch (Exception e) {
+            log.error("[ payOrder ] 订单更新异常 {}", order.getId(), e);
             return null;
         }
     }

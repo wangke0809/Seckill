@@ -26,7 +26,7 @@ public interface OrderService {
      * @param orderId
      * @return
      */
-    String payOrder(String orderId);
+    String payOrder(String orderId, Integer uid, Integer price);
 
     /**
      * 查询所有订单

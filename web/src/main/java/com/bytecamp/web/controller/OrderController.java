@@ -1,13 +1,16 @@
 package com.bytecamp.web.controller;
 
 import com.bytecamp.biz.service.OrderService;
-import com.bytecamp.web.enums.OrderStatus;
+import com.bytecamp.web.enums.OrderStatusEnum;
+import com.bytecamp.web.enums.PayStatusEnum;
 import com.bytecamp.web.query.OrderQuery;
+import com.bytecamp.web.query.PayQuery;
 import com.bytecamp.web.util.JsonRequestUtil;
 import com.bytecamp.web.vo.OrderResultVO;
 import com.bytecamp.web.vo.PayResultVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -27,9 +30,9 @@ public class OrderController {
 
     @ResponseBody
     @PostMapping(value = "/order")
-    public OrderResultVO order(HttpServletRequest request){
+    public OrderResultVO order(HttpServletRequest request) {
         OrderQuery orderQuery = JsonRequestUtil.getPostJson(request, OrderQuery.class);
-        if(orderQuery == null){
+        if (orderQuery == null) {
             log.error("order 请求参数为空");
             return null;
         }
@@ -37,26 +40,43 @@ public class OrderController {
             OrderResultVO vo = new OrderResultVO();
             // 返回订单号
             String orderId = orderService.addOrder(orderQuery.getUid(), orderQuery.getPid());
-            if(orderId == null){
-                vo.setCode(OrderStatus.FAILURE.getValue());
+            if (orderId == null) {
+                vo.setCode(OrderStatusEnum.FAILURE.getValue());
                 return vo;
-            }else{
-                vo.setCode(OrderStatus.SUCCESS.getValue());
+            } else {
+                vo.setCode(OrderStatusEnum.SUCCESS.getValue());
                 vo.setOrderId(orderId);
                 return vo;
             }
-        }catch (Exception e){
-            log.error("order 异常", e);
+        } catch (Exception e) {
+            log.error("[ order ] 异常 {}", orderQuery, e);
             return null;
         }
     }
 
     @ResponseBody
     @PostMapping(value = "/pay")
-    public PayResultVO pay(){
-        PayResultVO vo = new PayResultVO();
-        vo.setCode(0);
-        return vo;
-    }
+    public PayResultVO pay(HttpServletRequest request) {
+        PayQuery payQuery = JsonRequestUtil.getPostJson(request, PayQuery.class);
+        if (payQuery == null) {
+            log.error("pay 请求参数为空");
+            return null;
+        }
+        try {
+            PayResultVO vo = new PayResultVO();
 
+            String token = orderService.payOrder(payQuery.getOrderId(), payQuery.getUid(), payQuery.getPrice());
+
+            if (StringUtils.isEmpty(token)) {
+                vo.setCode(PayStatusEnum.FAILURE.getValue());
+            } else {
+                vo.setCode(PayStatusEnum.SUCCESS.getValue());
+                vo.setToken(token);
+            }
+            return vo;
+        } catch (Exception e) {
+            log.error("[ pay ] 异常 {}", payQuery, e);
+            return null;
+        }
+    }
 }

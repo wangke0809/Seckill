@@ -33,7 +33,7 @@ public class OrderServiceTest extends BaseTest {
 
     @Test
     public void payOrder() {
-        orderService.payOrder("test");
+        orderService.payOrder("test", 1, 1);
     }
 
     @Test

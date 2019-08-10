@@ -5,7 +5,7 @@ package com.bytecamp.web.enums;
  * @description: TOOrderStatusDO
  * @date 2019-08-10 01:39
  */
-public enum OrderStatus {
+public enum OrderStatusEnum {
 
     /**
      * 下单成功
@@ -18,7 +18,7 @@ public enum OrderStatus {
 
     private Integer value;
 
-    OrderStatus(Integer value){
+    OrderStatusEnum(Integer value){
         this.value = value;
     }
 

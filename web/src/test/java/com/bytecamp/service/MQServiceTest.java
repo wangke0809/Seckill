@@ -3,7 +3,7 @@ package com.bytecamp.service;
 import com.bytecamp.BaseTest;
 import com.bytecamp.biz.dto.OrderDto;
 import com.bytecamp.biz.service.MQService;
-import org.aspectj.weaver.ast.Or;
+import com.bytecamp.biz.service.ProductService;
 import org.junit.Test;
 
 import javax.annotation.Resource;
@@ -18,12 +18,15 @@ public class MQServiceTest extends BaseTest {
     @Resource
     MQService mqService;
 
+    @Resource
+    ProductService productService;
+
     @Test
     public void sendMsg(){
         OrderDto orderDto = new OrderDto();
         orderDto.setId("asdasd");
-        orderDto.setPid(1);
-        orderDto.setPid(2);
+
+        orderDto.setProduct(productService.getProductById(176467513));
         mqService.sendMessageToQueue(orderDto);
 
         try {

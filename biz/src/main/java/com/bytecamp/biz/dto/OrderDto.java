@@ -13,7 +13,7 @@ public class OrderDto {
     /**
      * 订单号
      */
-    String id;
+    Long id;
 
     /**
      * 用户 id

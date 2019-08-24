@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.math.BigInteger;
 
 /**
  * @author wangke
@@ -37,7 +38,7 @@ public class ProductServiceImpl implements ProductService {
      * @return
      */
     @Override
-    public Product getProductById(Integer id) {
+    public Product getProductById(Long id) {
         if (id == null || id < 0) {
             return null;
         }

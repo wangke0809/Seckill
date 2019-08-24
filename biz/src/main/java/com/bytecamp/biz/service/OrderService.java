@@ -18,7 +18,7 @@ public interface OrderService {
      * @param pid
      * @return 订单号
      */
-    String addOrder(Integer uid, Integer pid);
+    Long addOrder(Integer uid, Long pid);
 
     /**
      * 订单支付
@@ -26,7 +26,7 @@ public interface OrderService {
      * @param orderId
      * @return
      */
-    String payOrder(String orderId, Integer uid, Integer price);
+    String payOrder(Long orderId, Integer uid, Integer price);
 
     /**
      * 查询所有订单

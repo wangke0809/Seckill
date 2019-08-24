@@ -19,7 +19,7 @@ public interface OrderMapper {
 
     List<Order> selectByExample(OrderSearch example);
 
-    Order selectByPrimaryKey(String id);
+    Order selectByPrimaryKey(Long id);
 
     int updateByExampleSelective(@Param("record") Order record, @Param("example") OrderSearch example);
 

@@ -18,5 +18,5 @@ public class OrderQuery {
     /**
      * product id
      */
-    private Integer pid;
+    private Long pid;
 }

@@ -26,7 +26,7 @@ public class OrderServiceTest extends BaseTest {
 
     @Test
     public void addOrder() {
-        String id = orderService.addOrder(1, 2);
+        Long id = orderService.addOrder(1, 2L);
         System.out.println(id);
     }
 
@@ -37,7 +37,7 @@ public class OrderServiceTest extends BaseTest {
 
     @Test
     public void payOrder() {
-        orderService.payOrder("test", 1, 1);
+        orderService.payOrder(1L, 1, 1);
     }
 
     @Test
@@ -62,7 +62,7 @@ public class OrderServiceTest extends BaseTest {
         for (int i = 0; i < 200; i++) {
             executorService.execute(() -> {
                 try{
-                    orderService.addOrder(175230, 176472613);
+                    orderService.addOrder(175230, 176472613L);
                     res.incrementAndGet();
                 }catch (Exception e){
                     System.out.println("eeeeeeeee!");

@@ -10,7 +10,8 @@ import lombok.Data;
 @Data
 public class ProductVO {
 
-    private Integer id;
+
+    private Long pid;
 
     private Integer price;
 

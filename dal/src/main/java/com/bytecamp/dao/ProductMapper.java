@@ -18,7 +18,7 @@ public interface ProductMapper {
 
     List<Product> selectByExample(ProductSearch example);
 
-    Product selectByPrimaryKey(Integer id);
+    Product selectByPrimaryKey(Long id);
 
     int updateByExampleSelective(@Param("record") Product record, @Param("example") ProductSearch example);
 

@@ -20,7 +20,7 @@ public class ProductServiceTest extends BaseTest {
     @Test
     public void selectById() {
         for (int i = 0; i < 5; i++) {
-            Product product = productService.getProductById(1);
+            Product product = productService.getProductById(1L);
             System.out.println(product);
         }
 

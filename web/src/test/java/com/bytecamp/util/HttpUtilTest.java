@@ -24,7 +24,7 @@ public class HttpUtilTest extends BaseTest {
         ExecutorService executorService = Executors.newFixedThreadPool(1000);
         CountDownLatch countDownLatch = new CountDownLatch(1000);
 
-        for(int i=0;i<1000;i++){
+        for(int i=0;i<2;i++){
             executorService.execute(()->{
                 try{
                     String res = HttpUtil.postJson(url, null);

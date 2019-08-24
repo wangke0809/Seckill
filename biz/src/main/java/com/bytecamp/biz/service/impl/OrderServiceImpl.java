@@ -53,7 +53,7 @@ public class OrderServiceImpl implements OrderService {
     String tokenUrl;
 
     // 内存存储库存状态
-    private HashMap<Integer, Boolean> stockHashMap = new HashMap<>(2000);
+    private HashMap<Long, Boolean> stockHashMap = new HashMap<>(2000);
 
     /**
      * 插入订单数据
@@ -63,7 +63,7 @@ public class OrderServiceImpl implements OrderService {
      * @return 订单号
      */
     @Override
-    public String addOrder(Integer uid, Integer pid) {
+    public Long addOrder(Integer uid, Long pid) {
 
         Product product = null;
 
@@ -80,7 +80,7 @@ public class OrderServiceImpl implements OrderService {
             return null;
         }
 
-        Integer productId = product.getId();
+        Long productId = product.getId();
 
         // 系统内存中判断是否有库存
         // 考虑集群环境，某个商品在另一个节点内存中存储时，本节点依然无法使用内存变量判断
@@ -147,7 +147,7 @@ public class OrderServiceImpl implements OrderService {
         // 库存足够，进行下单！
         // 通过 mq 异步下单
         // TODO: gen order id by time and pid
-        String orderId = UUID.randomUUID().toString().substring(0, 25);
+        Long orderId = 1122333L;
 
         OrderDto orderDto = new OrderDto();
 
@@ -179,7 +179,7 @@ public class OrderServiceImpl implements OrderService {
      * @return
      */
     @Override
-    public String payOrder(String orderId, Integer uid, Integer price) {
+    public String payOrder(Long orderId, Integer uid, Integer price) {
 
         if (StringUtils.isEmpty(orderId) || price == null
                 || price < 0 || uid == null || uid < 0) {
@@ -217,7 +217,7 @@ public class OrderServiceImpl implements OrderService {
 
         PayDto payDto = new PayDto();
 
-        payDto.setOrderId(orderId);
+        payDto.setOrderId(orderId.toString());
         payDto.setPrice(order.getPrice());
         payDto.setUid(order.getUid());
 

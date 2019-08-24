@@ -24,9 +24,9 @@ public class MQServiceTest extends BaseTest {
     @Test
     public void sendMsg(){
         OrderDto orderDto = new OrderDto();
-        orderDto.setId("asdasd");
+        orderDto.setId(111L);
 
-        orderDto.setProduct(productService.getProductById(176467513));
+        orderDto.setProduct(productService.getProductById(176467513L));
         mqService.sendMessageToQueue(orderDto);
 
         try {

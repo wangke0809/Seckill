@@ -13,5 +13,5 @@ public interface ProductService {
      * @param id 商品id
      * @return
      */
-    Product getProductById(Integer id);
+    Product getProductById(Long id);
 }

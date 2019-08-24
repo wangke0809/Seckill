@@ -31,11 +31,12 @@ public class ProductController {
      */
     @ResponseBody
     @RequestMapping(value = "/product", method = RequestMethod.GET)
-    public ProductVO product(Integer pid) {
+    public ProductVO product(Long pid) {
         Product product = productService.getProductById(pid);
         if (product != null) {
             ProductVO vo = new ProductVO();
             BeanUtils.copyProperties(product, vo);
+            vo.setPid(product.getId());
             return vo;
         }else{
             log.error("pid: {} 商品不存在", pid);

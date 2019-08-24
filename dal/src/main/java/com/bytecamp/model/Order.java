@@ -7,11 +7,11 @@ import java.io.Serializable;
 
 @ToString
 public class Order extends BeanBase implements Serializable {
-    private String id;
+    private Long id;
 
     private Integer uid;
 
-    private Integer pid;
+    private Long pid;
 
     private String detail;
 
@@ -23,12 +23,12 @@ public class Order extends BeanBase implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id == null ? null : id.trim();
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Integer getUid() {
@@ -39,11 +39,11 @@ public class Order extends BeanBase implements Serializable {
         this.uid = uid;
     }
 
-    public Integer getPid() {
+    public Long getPid() {
         return pid;
     }
 
-    public void setPid(Integer pid) {
+    public void setPid(Long pid) {
         this.pid = pid;
     }
 

@@ -1,13 +1,13 @@
 CREATE TABLE `product` (
-  `id` int(11) unsigned NOT NULL,
+  `id` bigint(20) unsigned NOT NULL,
   `price` int(11) unsigned NOT NULL DEFAULT '0',
-  `detail` varchar(1000) NOT NULL DEFAULT '',
+  `detail` varchar(2000) NOT NULL DEFAULT '',
   `count` int(11) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `orders` (
-  `id` varchar(25) NOT NULL DEFAULT '',
+  `id` bigint(20) unsigned NOT NULL,
   `uid` int(11) unsigned NOT NULL,
   `pid` int(11) unsigned NOT NULL,
   `detail` varchar(1000) NOT NULL DEFAULT '',

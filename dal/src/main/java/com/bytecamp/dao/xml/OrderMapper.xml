@@ -3,8 +3,8 @@
 <mapper namespace="com.bytecamp.dao.OrderMapper">
   <resultMap id="BaseResultMap" type="com.bytecamp.model.Order">
     <id column="id" jdbcType="VARCHAR" property="id" />
-    <result column="uid" jdbcType="INTEGER" property="uid" />
-    <result column="pid" jdbcType="INTEGER" property="pid" />
+    <result column="uid" jdbcType="BIGINT" property="uid" />
+    <result column="pid" jdbcType="BIGINT" property="pid" />
     <result column="detail" jdbcType="VARCHAR" property="detail" />
     <result column="price" jdbcType="INTEGER" property="price" />
     <result column="order_status" jdbcType="TINYINT" property="orderStatus" />
@@ -92,15 +92,15 @@
       for update
     </if>
   </select>
-  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
     from orders
-    where id = #{id,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from orders
-    where id = #{id,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
   </delete>
   <delete id="deleteByExample" parameterType="com.bytecamp.model.OrderSearch">
     delete from orders
@@ -196,9 +196,9 @@
   </update>
   <update id="updateByExample" parameterType="map">
     update orders
-    set id = #{record.id,jdbcType=VARCHAR},
+    set id = #{record.id,jdbcType=BIGINT},
       uid = #{record.uid,jdbcType=INTEGER},
-      pid = #{record.pid,jdbcType=INTEGER},
+      pid = #{record.pid,jdbcType=BIGINT},
       detail = #{record.detail,jdbcType=VARCHAR},
       price = #{record.price,jdbcType=INTEGER},
       order_status = #{record.orderStatus,jdbcType=BIT},

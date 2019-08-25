@@ -14,6 +14,7 @@ import com.bytecamp.dao.OrderMapper;
 import com.bytecamp.model.Order;
 import com.bytecamp.model.OrderSearch;
 import com.bytecamp.model.Product;
+import com.bytecamp.util.GenerateIDUtil;
 import com.bytecamp.util.HttpUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -63,7 +64,7 @@ public class OrderServiceImpl implements OrderService {
      * @return 订单号
      */
     @Override
-    public Long addOrder(Integer uid, Long pid) {
+    public String addOrder(Integer uid, Long pid) {
 
         Product product = null;
 
@@ -147,7 +148,7 @@ public class OrderServiceImpl implements OrderService {
         // 库存足够，进行下单！
         // 通过 mq 异步下单
         // TODO: gen order id by time and pid
-        Long orderId = 1122333L;
+        String orderId = GenerateIDUtil.getInstance(0).nextId(pid);
 
         OrderDto orderDto = new OrderDto();
 
@@ -179,7 +180,7 @@ public class OrderServiceImpl implements OrderService {
      * @return
      */
     @Override
-    public String payOrder(Long orderId, Integer uid, Integer price) {
+    public String payOrder(String orderId, Integer uid, Integer price) {
 
         if (StringUtils.isEmpty(orderId) || price == null
                 || price < 0 || uid == null || uid < 0) {

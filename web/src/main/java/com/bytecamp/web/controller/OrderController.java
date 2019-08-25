@@ -45,13 +45,13 @@ public class OrderController {
         try {
             OrderResultVO vo = new OrderResultVO();
             // 返回订单号
-            Long orderId = orderService.addOrder(orderQuery.getUid(), orderQuery.getPid());
+            String orderId = orderService.addOrder(orderQuery.getUid(), orderQuery.getPid());
             if (orderId == null) {
                 vo.setCode(OrderStatusEnum.FAILURE.getValue());
                 return vo;
             } else {
                 vo.setCode(OrderStatusEnum.SUCCESS.getValue());
-                vo.setOrderId(orderId.toString());
+                vo.setOrderId(orderId);
                 return vo;
             }
         } catch (Exception e) {
@@ -71,7 +71,7 @@ public class OrderController {
         try {
             PayResultVO vo = new PayResultVO();
 
-            String token = orderService.payOrder(Long.valueOf(payQuery.getOrderId()), payQuery.getUid(), payQuery.getPrice());
+            String token = orderService.payOrder(payQuery.getOrderId(), payQuery.getUid(), payQuery.getPrice());
 
             if (StringUtils.isEmpty(token)) {
                 vo.setCode(PayStatusEnum.FAILURE.getValue());

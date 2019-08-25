@@ -26,7 +26,7 @@ public class OrderServiceTest extends BaseTest {
 
     @Test
     public void addOrder() {
-        Long id = orderService.addOrder(1, 2L);
+        String id = orderService.addOrder(1, 1L);
         System.out.println(id);
     }
 
@@ -37,7 +37,7 @@ public class OrderServiceTest extends BaseTest {
 
     @Test
     public void payOrder() {
-        orderService.payOrder(1L, 1, 1);
+        orderService.payOrder("111", 1, 1);
     }
 
     @Test

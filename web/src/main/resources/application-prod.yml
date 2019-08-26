@@ -35,7 +35,7 @@ spring:
   datasource:
     url: jdbc:mysql://10.108.18.77:3306/seckill?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&rewriteBatchedStatements=TRUE
     username: root
-    password: bytecampteam
+    password: 123456
     druid:
       # 连接池的配置信息
       # 初始化大小，最小，最大

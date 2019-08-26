@@ -1,4 +1,4 @@
-package com.bytecamp.web.filter;
+package com.bytecamp.web.interceptor;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -6,46 +6,37 @@ import com.bytecamp.biz.service.RedisService;
 import com.bytecamp.biz.util.RedisKeyUtil;
 import com.bytecamp.web.query.UidQuery;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.annotation.Resource;
-import javax.servlet.*;
-import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.UUID;
 
 /**
  * @author wangke
- * @description: 根据 uid 和 session 过滤用户
- * * @date 2019-08-09 17:41
+ * @description: UserInterceptor
+ * @date 2019-08-26 17:56
  */
 @Slf4j
-public class UserFilter implements Filter {
+@Component
+public class UserInterceptor extends HandlerInterceptorAdapter {
 
     @Resource
     RedisService redisService;
 
-    private final static String SESSION_KEY = "sessionId";
-
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-        HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
-        HttpServletResponse httpServletResponse = (HttpServletResponse) servletResponse;
-
-        // 全链路日志，先简单使用 uuid
-        String token = UUID.randomUUID().toString().replace("-", "");
-        MDC.put(SESSION_KEY, token);
+    public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object handler) throws Exception {
 
         String ua = httpServletRequest.getHeader("User-Agent");
         // ua 反作弊判断，正常情况下在 Nginx 层已经被过滤
         if (StringUtils.isEmpty(ua) || ua.contains("spider")) {
             httpServletResponse.setStatus(403);
-            return;
+            return false;
         }
 
         Integer uid = null;
@@ -84,32 +75,22 @@ public class UserFilter implements Filter {
                         if (!Integer.valueOf(auth_uid).equals(uid)) {
                             log.info("{} 用户身份验证「未」通过", uid);
                             httpServletResponse.setStatus(403);
-                            return;
-                        }else{
+                            return false;
+                        } else {
                             log.info("{} 用户身份验证通过", uid);
                         }
-                    }else {
+                    } else {
                         log.info("根据 session {} 没有找到对应用户", session);
                     }
                 } catch (Exception e) {
                     log.error("session 验证失败", e);
                 }
-            }else{
+            } else {
                 log.info("uid: {} 请求 session 为空", uid);
             }
-        }else {
+        } else {
             log.info("请求未包含 uid");
         }
-
-        filterChain.doFilter(servletRequest, servletResponse);
-
-        MDC.remove(SESSION_KEY);
-
-    }
-
-
-    @Override
-    public void destroy() {
-
+        return true;
     }
 }

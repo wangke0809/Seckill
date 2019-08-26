@@ -1,12 +1,18 @@
 server:
-  port: 8080
+  port: 8999
+
+seckill:
+  token:
+    url: http://10.108.18.78:808/token
+  reset:
+    token: testresettoken
 
 spring:
-  profiles: dev
+  profiles: prod
   application:
     name: seckill
   redis:
-    host: ip
+    host: 10.108.18.81
     port: 6379
     # 等待超时时间
     timeout: 1000
@@ -18,24 +24,24 @@ spring:
       # 最大建立连接等待时间
       max-wait: 1000
   activemq:
-    broker-url: tcp://ip:61616
+    broker-url: tcp://10.108.18.78:61616
     in-memory: false
     pool:
       enabled: true
-      max-connections: 100
+      max-connections: 1000
       idle-timeout: 10000
   jms:
     pub-sub-domain: true
   datasource:
-    url: jdbc:mysql://ip/seckill?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&rewriteBatchedStatements=TRUE
+    url: jdbc:mysql://10.108.18.77:3306/seckill?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&rewriteBatchedStatements=TRUE
     username: root
-    password: pw
+    password: bytecampteam
     druid:
       # 连接池的配置信息
       # 初始化大小，最小，最大
-      initial-size: 5
-      min-idle: 5
-      maxActive: 20
+      initial-size: 200
+      min-idle: 100
+      maxActive: 500
       # 配置获取连接等待超时的时间
       maxWait: 60000
       # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
@@ -67,7 +73,7 @@ spring:
         # IP黑名单 (存在共同时，deny优先于allow)
         # deny: 192.168.1.73
         #  禁用HTML页面上的“Reset All”功能
-        reset-enable: false
+        reset-enable: true
         # 登录名
         login-username: admin
         # 登录密码

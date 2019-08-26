@@ -7,7 +7,7 @@ CREATE TABLE `product` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `orders` (
-  `id` bigint(20) unsigned NOT NULL,
+  `id` varchar(27) NOT NULL DEFAULT '',
   `uid` int(11) unsigned NOT NULL,
   `pid` int(11) unsigned NOT NULL,
   `detail` varchar(1000) NOT NULL DEFAULT '',

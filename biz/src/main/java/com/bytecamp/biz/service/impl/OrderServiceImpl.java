@@ -162,13 +162,21 @@ public class OrderServiceImpl implements OrderService {
 
         try {
             mqService.sendMessageToQueue(orderDto);
+            // 缓存订单
+            String orderKey = String.format(RedisKeyUtil.ORDER, orderId);
+            Order order = new Order();
+            order.setUid(orderDto.getUid());
+            order.setPrice(product.getPrice());
+            order.setOrderStatus(OrderStatusEnum.UNFINISH.getValue());
+            order.setToken(null);
+            redisService.set(orderKey, JSON.toJSONString(order));
             return orderId;
         } catch (Exception e) {
             // 如果恢复，需要考虑当库存为负数时的情况，考虑到负数和集群
             // 需要另一个字段判断是否有库存，有再减库存，查询库存是请求两次 redis
             // 后来给出的解决方案：使用 lua 进行原子操作
             log.error("[异步下单] 失败", e);
-            orderRollBack(uid, productId);
+            orderRollBack(uid, productId, null);
             return null;
         }
 
@@ -189,6 +197,8 @@ public class OrderServiceImpl implements OrderService {
         }
 
         Order order;
+
+        String orderKey = String.format(RedisKeyUtil.ORDER, orderId);
 
         try {
             order = _mapper.selectByPrimaryKey(orderId);
@@ -329,8 +339,15 @@ public class OrderServiceImpl implements OrderService {
                 return;
             }
 
+            // 判断订单是否已经支付
+            String orderKey = String.format(RedisKeyUtil.ORDER, orderDto.getId());
+            String token = redisService.get(orderKey);
+
             Order order = new Order();
 
+            if (!token.equals("0")) {
+                order.setToken(token);
+            }
 
             order.setId(orderDto.getId());
             order.setUid(orderDto.getUid());
@@ -344,11 +361,11 @@ public class OrderServiceImpl implements OrderService {
                 log.info("{} 异步下单成功", orderDto.getId());
             } else {
                 log.error("{} 异步下单失败", orderDto.getId());
-                orderRollBack(orderDto.getUid(), orderDto.getProduct().getId());
+                orderRollBack(orderDto.getUid(), orderDto.getProduct().getId(), orderDto.getId());
             }
         } catch (Exception e) {
             log.error("消息队列订阅异常 {}", textMessage, e);
-            orderRollBack(orderDto.getUid(), orderDto.getProduct().getId());
+            orderRollBack(orderDto.getUid(), orderDto.getProduct().getId(), orderDto.getId());
 
         }
 
@@ -365,7 +382,7 @@ public class OrderServiceImpl implements OrderService {
      * @param uid
      * @param productId
      */
-    public void orderRollBack(Integer uid, Long productId) {
+    public void orderRollBack(Integer uid, Long productId, String orderid) {
 
         log.info("[订单回滚] 开始");
 
@@ -380,6 +397,18 @@ public class OrderServiceImpl implements OrderService {
 
         // 存在并发竞争，不过没关系
         stockHashMap.put(productId, false);
+
+        if (orderid != null) {
+            String orderKey = String.format(RedisKeyUtil.ORDER, orderid);
+            String token = redisService.get(orderKey);
+            // 插入数据库失败但是已经支付了
+            if (!token.equals("0")) {
+                log.error("[严重错误] 订单 {} 保存失败但是已经支付 {}", orderid, token);
+            } else {
+                redisService.del(orderKey);
+            }
+        }
+
 
         log.info("[订单回滚] 结束");
 

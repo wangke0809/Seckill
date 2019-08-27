@@ -39,8 +39,8 @@ spring:
     druid:
       # 连接池的配置信息
       # 初始化大小，最小，最大
-      initial-size: 50
-      min-idle: 100
+      initial-size: 70
+      min-idle: 70
       maxActive: 200
       # 配置获取连接等待超时的时间
       maxWait: 60000

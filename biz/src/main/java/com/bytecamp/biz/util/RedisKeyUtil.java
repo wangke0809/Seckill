@@ -28,4 +28,9 @@ public class RedisKeyUtil {
      * uid 购买的 pid
      */
     public static final String USERPRODUCT = "U:%s:%s";
+
+    /**
+     * 订单 状态
+     */
+    public static final String ORDER = "O:%s";
 }

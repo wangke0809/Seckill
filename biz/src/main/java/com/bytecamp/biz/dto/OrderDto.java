@@ -24,4 +24,9 @@ public class OrderDto {
      * 商品信息
      */
     Product product;
+
+    /**
+     * token
+     */
+    String token;
 }

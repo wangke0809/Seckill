@@ -22,6 +22,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import javax.jms.Message;
 import javax.jms.TextMessage;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -43,9 +44,6 @@ public class OrderServiceImpl implements OrderService {
 
     @Resource
     ProductService productService;
-
-    @Resource
-    MQService mqService;
 
     @Resource
     RedisService redisService;
@@ -141,44 +139,29 @@ public class OrderServiceImpl implements OrderService {
             return null;
         }
 
-        // 是否重复购买涉及并发判断，不能使用 mysql 判断，使用 redis 判断
-        // 而且应该现判断
-        // 如果后判断，先减少再增加，库存已经减少时，新来的请求会认为没有库存
-        // if(orderExists(uid, productId)){
-        //     return null;
-        // }
-
         // 库存足够，进行下单！
         // 通过 mq 异步下单
         String orderId = GenerateIDUtil.getInstance(machineId).nextId(pid);
 
-        OrderDto orderDto = new OrderDto();
+        String orderKey = String.format(RedisKeyUtil.ORDER, orderId);
+        OrderDto order = new OrderDto();
+        order.setId(orderId);
+        order.setUid(uid);
+        order.setPid(product.getId());
+        order.setDetail(product.getDetail());
+        order.setPrice(product.getPrice());
+        order.setOrderStatus(OrderStatusEnum.UNFINISH.getValue());
+        order.setToken(null);
+        redisService.set(orderKey, JSON.toJSONString(order));
 
-        orderDto.setId(orderId);
-        orderDto.setProduct(product);
-        orderDto.setUid(uid);
+        String userOrders = String.format(RedisKeyUtil.USERORDER, uid);
 
-        log.info("异步下单 orderId {} uid {} pid {}", orderId, uid, pid);
+        redisService.lpush(userOrders, orderId);
 
-        try {
-            mqService.sendMessageToQueue(orderDto);
-            // 缓存订单
-            String orderKey = String.format(RedisKeyUtil.ORDER, orderId);
-            Order order = new Order();
-            order.setUid(orderDto.getUid());
-            order.setPrice(product.getPrice());
-            order.setOrderStatus(OrderStatusEnum.UNFINISH.getValue());
-            order.setToken(null);
-            redisService.set(orderKey, JSON.toJSONString(order));
-            return orderId;
-        } catch (Exception e) {
-            // 如果恢复，需要考虑当库存为负数时的情况，考虑到负数和集群
-            // 需要另一个字段判断是否有库存，有再减库存，查询库存是请求两次 redis
-            // 后来给出的解决方案：使用 lua 进行原子操作
-            log.error("[异步下单] 失败", e);
-            orderRollBack(uid, productId, null);
-            return null;
-        }
+        log.info("下单完成 orderId {} uid {} pid {}", orderId, uid, pid);
+
+        return orderId;
+
 
     }
 
@@ -196,14 +179,19 @@ public class OrderServiceImpl implements OrderService {
             return null;
         }
 
-        Order order;
+        OrderDto order = null;
 
         String orderKey = String.format(RedisKeyUtil.ORDER, orderId);
+        String orderString = redisService.get(orderKey);
 
-        try {
-            order = _mapper.selectByPrimaryKey(orderId);
-        } catch (Exception e) {
-            log.error("[ payOrder ] 查询订单异常 {}", orderId, e);
+        if (orderString != null) {
+            try {
+                order = JSON.parseObject(orderString, OrderDto.class);
+            } catch (Exception e) {
+                log.error("反序列化订单失败");
+            }
+        } else {
+            log.info("订单不存在");
             return null;
         }
 
@@ -229,7 +217,7 @@ public class OrderServiceImpl implements OrderService {
 
         PayDto payDto = new PayDto();
 
-        payDto.setOrderId(orderId.toString());
+        payDto.setOrderId(orderId);
         payDto.setPrice(order.getPrice());
         payDto.setUid(order.getUid());
 
@@ -247,6 +235,7 @@ public class OrderServiceImpl implements OrderService {
 
         if (tokenDto == null || tokenDto.getToken() == null) {
             log.error("[ payOrder ] 获取 token 失败 {}", orderId);
+            return null;
         }
 
         log.info("[ payOrder ] 成功获取 token {}", tokenDto.getToken());
@@ -254,18 +243,10 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderStatus(OrderStatusEnum.FINISH.getValue());
         order.setToken(tokenDto.getToken());
 
-        try {
-            if (_mapper.updateByPrimaryKey(order) > 0) {
-                log.info("[ payOrder ] 订单更新成功 {}", order.getId());
-                return tokenDto.getToken();
-            } else {
-                log.error("[ payOrder ] 订单更新失败 {}", order.getId());
-                return null;
-            }
-        } catch (Exception e) {
-            log.error("[ payOrder ] 订单更新异常 {}", order.getId(), e);
-            return null;
-        }
+        redisService.set(orderKey, JSON.toJSONString(order));
+
+        return tokenDto.getToken();
+
     }
 
     /**
@@ -274,103 +255,22 @@ public class OrderServiceImpl implements OrderService {
      * @return
      */
     @Override
-    public List<Order> getAllOrders() {
-        OrderSearch search = new OrderSearch();
-        List<Order> list = _mapper.selectByExample(search);
+    public List<OrderDto> getAllOrders(Integer uid) {
+        List<OrderDto> list = new ArrayList<>();
+        String userOrders = String.format(RedisKeyUtil.USERORDER, uid);
+        List<String> orderOds = redisService.lrange(userOrders, 0, -1);
+        for (String orderId : orderOds) {
+            try {
+                String orderKey = String.format(RedisKeyUtil.ORDER, orderId);
+                String orderString = redisService.get(orderKey);
+                OrderDto order = JSON.parseObject(orderString, OrderDto.class);
+                list.add(order);
+            } catch (Exception e) {
+                log.error("[getAllOrders] 异常", e);
+            }
+        }
         return list;
     }
-
-    /**
-     * 删除所有
-     *
-     * @return
-     */
-    @Override
-    public Boolean delAllOrders() {
-        OrderSearch search = new OrderSearch();
-        _mapper.deleteByExample(search);
-        return true;
-    }
-
-    /**
-     * 是否存在 uid 购买 pid
-     *
-     * @param uid
-     * @param pid
-     */
-    @Override
-    public Boolean orderExists(Integer uid, Integer pid) {
-        OrderSearch search = new OrderSearch();
-        search.createCriteria().andUidEqualTo(uid).andPidEqualTo(pid);
-        List<Order> list = _mapper.selectByExample(search);
-        if (list.size() > 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * 接受点对点订单队列消息
-     *
-     * @param message
-     */
-    @JmsListener(destination = "order", containerFactory = "queueListenerFactory")
-    public void receiveOrderMessage(Message message) {
-
-        TextMessage textMessage = (TextMessage) message;
-        OrderDto orderDto = null;
-
-        try {
-            String str = textMessage.getText();
-
-            orderDto = JSON.parseObject(str, OrderDto.class);
-
-            log.info("接收到订单 orderId {}", orderDto.getId());
-        } catch (Exception e) {
-            log.error("接收到订单失败 {}", textMessage, e);
-            return;
-        }
-
-        try {
-            Product product = orderDto.getProduct();
-
-            if (product == null) {
-                return;
-            }
-
-            // 判断订单是否已经支付
-            String orderKey = String.format(RedisKeyUtil.ORDER, orderDto.getId());
-            String token = redisService.get(orderKey);
-
-            Order order = new Order();
-
-            if (!token.equals("0")) {
-                order.setToken(token);
-            }
-
-            order.setId(orderDto.getId());
-            order.setUid(orderDto.getUid());
-            order.setPid(orderDto.getProduct().getId());
-            order.setDetail(product.getDetail());
-            order.setPrice(product.getPrice());
-            order.setOrderStatus(OrderStatusEnum.UNFINISH.getValue());
-            order.setToken(null);
-
-            if (_mapper.insert(order) > 0) {
-                log.info("{} 异步下单成功", orderDto.getId());
-            } else {
-                log.error("{} 异步下单失败", orderDto.getId());
-                orderRollBack(orderDto.getUid(), orderDto.getProduct().getId(), orderDto.getId());
-            }
-        } catch (Exception e) {
-            log.error("消息队列订阅异常 {}", textMessage, e);
-            orderRollBack(orderDto.getUid(), orderDto.getProduct().getId(), orderDto.getId());
-
-        }
-
-    }
-
 
     /**
      * 订单回滚
@@ -414,5 +314,11 @@ public class OrderServiceImpl implements OrderService {
 
     }
 
-
+    /**
+     * 情况 hashmap
+     */
+    @Override
+    public void stockMapClear() {
+        stockHashMap.clear();
+    }
 }

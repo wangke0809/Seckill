@@ -33,4 +33,9 @@ public class RedisKeyUtil {
      * 订单 状态
      */
     public static final String ORDER = "O:%s";
+
+    /**
+     * 用户订单列表
+     */
+    public static final String USERORDER = "R:%s";
 }

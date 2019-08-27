@@ -1,5 +1,6 @@
 package com.bytecamp.web.controller;
 
+import com.bytecamp.biz.dto.OrderDto;
 import com.bytecamp.biz.service.OrderService;
 import com.bytecamp.model.Order;
 import com.bytecamp.web.enums.OrderStatusEnum;
@@ -88,17 +89,17 @@ public class OrderController {
 
     @ResponseBody
     @GetMapping("/result")
-    public AllOrderVO result() {
+    public AllOrderVO result(Integer uid) {
         AllOrderVO allOrderVO = new AllOrderVO();
         List<OrderVO> data = new ArrayList<>();
         allOrderVO.setData(data);
 
         try {
-            List<Order> orders = orderService.getAllOrders();
-            for (Order order : orders) {
+            List<OrderDto> orders = orderService.getAllOrders(uid);
+            for (OrderDto order : orders) {
                 OrderVO vo = new OrderVO();
                 BeanUtils.copyProperties(order, vo);
-                vo.setOrderId(order.getId().toString());
+                vo.setOrderId(order.getId());
                 vo.setStatus(order.getOrderStatus().intValue());
                 data.add(vo);
             }

@@ -1,6 +1,5 @@
 package com.bytecamp.biz.dto;
 
-import com.bytecamp.model.Product;
 import lombok.Data;
 
 /**
@@ -10,23 +9,17 @@ import lombok.Data;
  */
 @Data
 public class OrderDto {
-    /**
-     * 订单号
-     */
-    String id;
+    private String id;
 
-    /**
-     * 用户 id
-     */
-    int uid;
+    private Integer uid;
 
-    /**
-     * 商品信息
-     */
-    Product product;
+    private Long pid;
 
-    /**
-     * token
-     */
-    String token;
+    private String detail;
+
+    private Integer price;
+
+    private Byte orderStatus;
+
+    private String token;
 }

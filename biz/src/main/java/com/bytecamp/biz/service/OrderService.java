@@ -1,5 +1,6 @@
 package com.bytecamp.biz.service;
 
+import com.bytecamp.biz.dto.OrderDto;
 import com.bytecamp.model.Order;
 
 import java.util.List;
@@ -33,19 +34,11 @@ public interface OrderService {
      *
      * @return
      */
-    List<Order> getAllOrders();
+    List<OrderDto> getAllOrders(Integer uid);
 
     /**
-     * 删除所有
-     * @return
+     * 情况 hashmap
      */
-    Boolean delAllOrders();
+    void stockMapClear();
 
-    /**
-     * 是否存在 uid 购买 pid
-     * @param uid
-     * @param pid
-     * @return
-     */
-    Boolean orderExists(Integer uid, Integer pid);
 }

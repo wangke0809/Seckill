@@ -32,22 +32,12 @@ public class OrderServiceTest extends BaseTest {
 
     @Test
     public void getAll() {
-        System.out.println(orderService.getAllOrders());
+        System.out.println(orderService.getAllOrders(1));
     }
 
     @Test
     public void payOrder() {
         orderService.payOrder("111", 1, 1);
-    }
-
-    @Test
-    public void delAll() {
-        orderService.delAllOrders();
-    }
-
-    @Test
-    public void orderExists() {
-        System.out.println(orderService.orderExists(1, 1));
     }
 
     /**

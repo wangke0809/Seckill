@@ -13,7 +13,7 @@ public class OrderVO {
 
     private Integer uid;
 
-    private Integer pid;
+    private Long pid;
 
     private String detail;
 

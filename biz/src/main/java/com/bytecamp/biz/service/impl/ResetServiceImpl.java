@@ -1,7 +1,9 @@
 package com.bytecamp.biz.service.impl;
 
+import com.bytecamp.biz.service.OrderService;
 import com.bytecamp.biz.service.RedisService;
 import com.bytecamp.biz.service.ResetService;
+import com.bytecamp.biz.util.RedisKeyUtil;
 import com.bytecamp.dao.OrderMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -20,8 +23,8 @@ import java.util.Set;
 @Slf4j
 public class ResetServiceImpl implements ResetService {
 
-    @Resource(name = "orderMapper")
-    private OrderMapper _mapper;
+    @Resource
+    OrderService orderService;
 
     @Resource
     RedisService redisService;
@@ -43,10 +46,8 @@ public class ResetServiceImpl implements ResetService {
         }
 
         try {
-            // 清除订单数据库，truncate 速度最快
-            _mapper.truncate();
 
-            // 清除除了 session 以外的 redis 缓存
+            orderService.stockMapClear();
 
             // 库存 keys
             Set<String> sKeys = redisService.getAllKeys("S:*");
@@ -54,14 +55,24 @@ public class ResetServiceImpl implements ResetService {
             // uid 购买的 pid keys
             Set<String> uKeys = redisService.getAllKeys("U:*");
 
-            // TODO: 商品缓存不用清除应该也可以
-
             for (String key : sKeys) {
                 redisService.del(key);
             }
 
             for (String key : uKeys) {
                 redisService.del(key);
+            }
+
+            Set<String> uidKeys = redisService.getAllKeys("R:*");
+
+            for (String uid : uidKeys) {
+                String userOrders = String.format(RedisKeyUtil.USERORDER, uid.substring(2, uid.length()));
+                List<String> orderOds = redisService.lrange(userOrders, 0, -1);
+                for (String orderId : orderOds) {
+                    String orderKey = String.format(RedisKeyUtil.ORDER, orderId);
+                    redisService.del(orderKey);
+                }
+                redisService.del(uid);
             }
 
             log.info("[ reset] reset 成功");

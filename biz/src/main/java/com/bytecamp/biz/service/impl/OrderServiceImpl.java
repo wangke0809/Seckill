@@ -98,7 +98,7 @@ public class OrderServiceImpl implements OrderService {
         // 库存 key
         String key = String.format(RedisKeyUtil.STOCK, productId);
 
-        // uid 是否购买 pid key
+        // uid 是否购买 pid key， 解决是否重复下单
         String uidPidKey = String.format(RedisKeyUtil.USERPRODUCT, uid, productId);
 
         // 判断是否已经购买
@@ -147,7 +147,7 @@ public class OrderServiceImpl implements OrderService {
 
         // 库存足够，进行下单！
         // 通过 mq 异步下单
-        // TODO: gen order id by time and pid
+        // TODO: 机器id
         String orderId = GenerateIDUtil.getInstance(0).nextId(pid);
 
         OrderDto orderDto = new OrderDto();

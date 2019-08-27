@@ -5,10 +5,7 @@ import com.bytecamp.biz.dto.OrderDto;
 import com.bytecamp.biz.dto.PayDto;
 import com.bytecamp.biz.dto.TokenDto;
 import com.bytecamp.biz.enums.OrderStatusEnum;
-import com.bytecamp.biz.service.MQService;
-import com.bytecamp.biz.service.OrderService;
-import com.bytecamp.biz.service.ProductService;
-import com.bytecamp.biz.service.RedisService;
+import com.bytecamp.biz.service.*;
 import com.bytecamp.biz.util.RedisKeyUtil;
 import com.bytecamp.dao.OrderMapper;
 import com.bytecamp.model.Order;
@@ -41,6 +38,9 @@ public class OrderServiceImpl implements OrderService {
     @Resource(name = "orderMapper")
     private OrderMapper _mapper;
 
+    @Value("${seckill.machine-id}")
+    private int machineId;
+
     @Resource
     ProductService productService;
 
@@ -50,10 +50,13 @@ public class OrderServiceImpl implements OrderService {
     @Resource
     RedisService redisService;
 
+    @Resource
+    RedisLuaHelper redisLuaHelper;
+
     @Value("${seckill.token.url}")
     String tokenUrl;
 
-    // 内存存储库存状态
+    // 内存存储库存状态，如果为真表示库存售罄
     private HashMap<Long, Boolean> stockHashMap = new HashMap<>(2000);
 
     /**
@@ -92,7 +95,7 @@ public class OrderServiceImpl implements OrderService {
             return null;
         }
 
-        // redis中判断是否有库存
+        // redis 中判断是否有库存
         // 用 hashmap 是为了方便实现 reset 接口
 
         // 库存 key
@@ -147,8 +150,7 @@ public class OrderServiceImpl implements OrderService {
 
         // 库存足够，进行下单！
         // 通过 mq 异步下单
-        // TODO: 机器id
-        String orderId = GenerateIDUtil.getInstance(0).nextId(pid);
+        String orderId = GenerateIDUtil.getInstance(machineId).nextId(pid);
 
         OrderDto orderDto = new OrderDto();
 
@@ -162,12 +164,11 @@ public class OrderServiceImpl implements OrderService {
             mqService.sendMessageToQueue(orderDto);
             return orderId;
         } catch (Exception e) {
-            // TODO: 恢复锁定的库存
             // 如果恢复，需要考虑当库存为负数时的情况，考虑到负数和集群
             // 需要另一个字段判断是否有库存，有再减库存，查询库存是请求两次 redis
-
-            // 删除 uid 与 pid 锁定关系
-            redisService.del(uidPidKey);
+            // 后来给出的解决方案：使用 lua 进行原子操作
+            log.error("[异步下单] 失败", e);
+            orderRollBack(uid, productId);
             return null;
         }
 
@@ -306,14 +307,22 @@ public class OrderServiceImpl implements OrderService {
      */
     @JmsListener(destination = "order", containerFactory = "queueListenerFactory")
     public void receiveOrderMessage(Message message) {
+
         TextMessage textMessage = (TextMessage) message;
+        OrderDto orderDto = null;
+
         try {
             String str = textMessage.getText();
 
-            OrderDto orderDto = JSON.parseObject(str, OrderDto.class);
+            orderDto = JSON.parseObject(str, OrderDto.class);
 
             log.info("接收到订单 orderId {}", orderDto.getId());
+        } catch (Exception e) {
+            log.error("接收到订单失败 {}", textMessage, e);
+            return;
+        }
 
+        try {
             Product product = orderDto.getProduct();
 
             if (product == null) {
@@ -334,13 +343,47 @@ public class OrderServiceImpl implements OrderService {
             if (_mapper.insert(order) > 0) {
                 log.info("{} 异步下单成功", orderDto.getId());
             } else {
-                // TODO: 异常如何回退
                 log.error("{} 异步下单失败", orderDto.getId());
+                orderRollBack(orderDto.getUid(), orderDto.getProduct().getId());
             }
         } catch (Exception e) {
-            // TODO: 异常如何回退
             log.error("消息队列订阅异常 {}", textMessage, e);
+            orderRollBack(orderDto.getUid(), orderDto.getProduct().getId());
+
         }
 
     }
+
+
+    /**
+     * 订单回滚
+     * 存入数据库之前发生任何异常需要回滚
+     * 回滚 Redis 库存
+     * 回滚库存内存状态
+     * 回滚 Redis 已经购买状态
+     *
+     * @param uid
+     * @param productId
+     */
+    public void orderRollBack(Integer uid, Long productId) {
+
+        log.info("[订单回滚] 开始");
+
+        // 库存 key
+        String key = String.format(RedisKeyUtil.STOCK, productId);
+
+        // uid 是否购买 pid key， 解决是否重复下单
+        String uidPidKey = String.format(RedisKeyUtil.USERPRODUCT, uid, productId);
+
+        redisLuaHelper.stockIncr(key);
+        redisService.del(uidPidKey);
+
+        // 存在并发竞争，不过没关系
+        stockHashMap.put(productId, false);
+
+        log.info("[订单回滚] 结束");
+
+    }
+
+
 }

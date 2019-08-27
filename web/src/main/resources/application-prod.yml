@@ -18,9 +18,9 @@ spring:
     timeout: 1000
     pool:
       # 最大连接数
-      max-total: 500
+      max-total: 3000
       # 最大空闲数
-      max-idle: 50
+      max-idle: 1000
       # 最大建立连接等待时间
       max-wait: 1000
   activemq:

@@ -47,6 +47,7 @@ public class ResetServiceImpl implements ResetService {
 
         try {
 
+            // TODO: 键用常量获取 format(KEY, "*")
             orderService.stockMapClear();
 
             // 库存 keys
@@ -55,11 +56,25 @@ public class ResetServiceImpl implements ResetService {
             // uid 购买的 pid keys
             Set<String> uKeys = redisService.getAllKeys("U:*");
 
+            // uid 购买的 pid keys
+            Set<String> ipBlockKeys = redisService.getAllKeys("I:*");
+
+            // uid 购买的 pid keys
+            Set<String> userIpKeys = redisService.getAllKeys("B:*");
+
             for (String key : sKeys) {
                 redisService.del(key);
             }
 
             for (String key : uKeys) {
+                redisService.del(key);
+            }
+
+            for (String key : ipBlockKeys) {
+                redisService.del(key);
+            }
+
+            for (String key : userIpKeys) {
                 redisService.del(key);
             }
 

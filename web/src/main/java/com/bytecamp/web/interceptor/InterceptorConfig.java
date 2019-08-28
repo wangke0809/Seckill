@@ -17,14 +17,14 @@ public class InterceptorConfig implements WebMvcConfigurer {
     @Resource
     LogInterceptor logInterceptor;
     @Resource
-    UserInterceptor userInterceptor;
+    CheatCheckInterceptor cheatCheckInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         // 全链路日志
         registry.addInterceptor(logInterceptor).addPathPatterns("/**");
         // 用户 session 检查
-        registry.addInterceptor(userInterceptor).addPathPatterns("/**");
+        registry.addInterceptor(cheatCheckInterceptor).addPathPatterns("/**");
 
 
     }

@@ -20,17 +20,24 @@ public class LogInterceptor extends HandlerInterceptorAdapter {
      */
     private final static String SESSION_KEY = "sessionId";
 
+    /**
+     * 请求路径
+     */
+    private final static String URI_KEY = "uri";
+
 
     @Override
     public boolean preHandle(HttpServletRequest request,
                              HttpServletResponse response, Object handler) throws Exception {
         String token = UUID.randomUUID().toString().replace("-", "");
         MDC.put(SESSION_KEY, token);
+        MDC.put(URI_KEY, request.getRequestURI());
         return true;
     }
 
     @Override
     public void afterCompletion(HttpServletRequest arg0, HttpServletResponse arg1, Object arg2, Exception arg3) throws Exception {
         MDC.remove(SESSION_KEY);
+        MDC.remove(URI_KEY);
     }
 }

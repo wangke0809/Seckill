@@ -38,4 +38,14 @@ public class RedisKeyUtil {
      * 用户订单列表
      */
     public static final String USERORDER = "R:%s";
+
+    /**
+     * ip 黑名单
+     */
+    public static final String IPBLCAK = "I:%s";
+
+    /**
+     * 记录用户登陆的 ip
+     */
+    public static final String USERIP = "B:%s";
 }

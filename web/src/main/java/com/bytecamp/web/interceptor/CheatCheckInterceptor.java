@@ -55,6 +55,7 @@ public class CheatCheckInterceptor extends HandlerInterceptorAdapter {
 
         // ua 反作弊判断，正常情况下在 Nginx 层已经被过滤
         if (StringUtils.isEmpty(ua) || ua.contains("spider")) {
+            log.error("ua 为空");
             httpServletResponse.setStatus(403);
             return false;
         }
@@ -111,7 +112,7 @@ public class CheatCheckInterceptor extends HandlerInterceptorAdapter {
         RequestDTO dto = new RequestDTO();
 
         if (ip == null) {
-            httpServletResponse.setStatus(403);
+//            httpServletResponse.setStatus(403);
             log.error("请求 ip 为空");
             // TODO: 正式时打开
 //            return false;

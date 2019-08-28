@@ -44,9 +44,6 @@ public class UserSessionCheatingCheck implements CheatingCheck {
                 }
             }
         } else {
-            log.error("session 为空");
-            // TODO: 测试时 返回 false，正常应该打开
-//            return false;
             return true;
         }
         // uid 不为空时判断是否和 session 符合
@@ -69,7 +66,7 @@ public class UserSessionCheatingCheck implements CheatingCheck {
                 log.info("uid: {} 请求 session 为空", uid);
             }
         } else {
-            log.info("请求未包含 uid");
+//            log.info("请求未包含 uid");
             dto.setUid(Integer.valueOf(auth_uid));
         }
 

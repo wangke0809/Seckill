@@ -34,17 +34,17 @@ public class UserIpCheatingCheck implements CheatingCheck {
         String ip = dto.getIp();
         Integer uid = dto.getUid();
         if (redisHelper.userIpIsChange(uid, ip)) {
-            log.error("userIpIsChange 作弊");
+            log.info("userIpIsChange 作弊");
             return true;
         }
 
         if (redisHelper.userIsBlack(uid)) {
-            log.error("userIsBlack 作弊");
+            log.info("userIsBlack 作弊");
             return true;
         }
 
         if (redisHelper.ipIsBlack(ip)) {
-            log.error("ipIsBlack 作弊");
+            log.info("ipIsBlack 作弊");
             return true;
         }
         return false;

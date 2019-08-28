@@ -34,7 +34,7 @@ public class UserReuqestPathCheatingCheck implements CheatingCheck {
             redisHelper.requestProductPathAdd(dto.getUid());
         } else if (dto.getUri().equals("/order")) {
             if (!redisHelper.requestProductPathExists(dto.getUid(), dto.getIp())) {
-                log.error("requestProductPathExists 作弊");
+                log.info("requestProductPathExists 作弊");
                 return true;
             }
         }

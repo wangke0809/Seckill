@@ -43,12 +43,12 @@ public class CheatCheckInterceptor extends HandlerInterceptorAdapter {
 
         String uri = httpServletRequest.getRequestURI();
 
-        if (uri.equals("/reset22222222223")) {
+        if (uri.equals("/reset22222222223") || uri.equals("/reset")) {
             return true;
         }
 
         if (uri.equals("/product") || uri.equals("/order") || uri.equals("/pay")
-                || uri.equals("/reset") || uri.equals("/result")) {
+                || uri.equals("/result")) {
 
         } else {
             log.error("请求不存在的接口");
@@ -58,15 +58,22 @@ public class CheatCheckInterceptor extends HandlerInterceptorAdapter {
         String ua = httpServletRequest.getHeader("User-Agent");
 
         // ua 反作弊判断，正常情况下在 Nginx 层已经被过滤
-        if (StringUtils.isEmpty(ua) || ua.contains("spider")) {
-            log.error("ua 为空");
-            httpServletResponse.setStatus(403);
-            return false;
-        }
+//        if (StringUtils.isEmpty(ua) || ua.contains("spider")) {
+//            log.error("ua 为空");
+//            httpServletResponse.setStatus(403);
+//            return false;
+//        }
 
         Integer uid = null;
         String ip = httpServletRequest.getHeader("X-Forwarded-For");
         String session = httpServletRequest.getHeader("sessionid");
+
+//        if (ip == null) {
+//            httpServletResponse.setStatus(403);
+//            log.error("请求 ip 为空");
+//            // TODO: 正式时打开
+//            return false;
+//        }
 
         // GET 方法中取 uid 与 POST json 中 获取 uid
         JSONObject jsonObject = null;
@@ -115,13 +122,6 @@ public class CheatCheckInterceptor extends HandlerInterceptorAdapter {
 
         RequestDTO dto = new RequestDTO();
 
-        if (ip == null) {
-            httpServletResponse.setStatus(403);
-            log.error("请求 ip 为空");
-            // TODO: 正式时打开
-            return false;
-        }
-
         dto.setIp(ip);
         dto.setPost(jsonObject);
         dto.setSession(session);
@@ -143,6 +143,7 @@ public class CheatCheckInterceptor extends HandlerInterceptorAdapter {
             httpServletResponse.setStatus(403);
             return false;
         }
+
         return true;
     }
 }

@@ -109,6 +109,8 @@ public class OrderController {
 
             if (StringUtils.isEmpty(token)) {
                 vo.setCode(PayStatusEnum.FAILURE.getValue());
+                httpServletResponse.setStatus(403);
+                return null;
             } else {
                 vo.setCode(PayStatusEnum.SUCCESS.getValue());
                 vo.setToken(token);

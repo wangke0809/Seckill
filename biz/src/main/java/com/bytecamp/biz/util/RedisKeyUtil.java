@@ -42,10 +42,20 @@ public class RedisKeyUtil {
     /**
      * ip 黑名单
      */
-    public static final String IPBLCAK = "I:%s";
+    public static final String IPBLACK = "I:%s";
+
+    /**
+     * user 黑名单
+     */
+    public static final String USERBLACK = "A:%s";
 
     /**
      * 记录用户登陆的 ip
      */
     public static final String USERIP = "B:%s";
+
+    /**
+     * 记录用户是否访问过 product 接口
+     */
+    public static final String REQUEST_PRODCUCT = "RP:%s";
 }

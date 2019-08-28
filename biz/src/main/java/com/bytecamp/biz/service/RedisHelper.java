@@ -24,16 +24,36 @@ public class RedisHelper {
      * @param ip
      */
     public void ipBlackAdd(String ip) {
-        String key = String.format(RedisKeyUtil.IPBLCAK, ip);
+        String key = String.format(RedisKeyUtil.IPBLACK, ip);
         redisService.set(key, "0");
     }
 
     public Boolean ipIsBlack(String ip) {
-        String key = String.format(RedisKeyUtil.IPBLCAK, ip);
+        String key = String.format(RedisKeyUtil.IPBLACK, ip);
         if (redisService.exists(key)) {
             return true;
         }
         return false;
+    }
+
+    /**
+     * 用户黑名单
+     *
+     * @param uid
+     */
+    public void userBlackAdd(Integer uid) {
+        String key = String.format(RedisKeyUtil.USERBLACK, uid);
+        redisService.set(key, "0");
+    }
+
+    public Boolean userIsBlack(Integer uid) {
+        String key = String.format(RedisKeyUtil.USERBLACK, uid);
+        if (redisService.exists(key)) {
+            return true;
+        } else {
+            return false;
+        }
+
     }
 
     /**
@@ -59,8 +79,27 @@ public class RedisHelper {
         if (uip.equals(ip)) {
             return false;
         } else {
+            ipBlackAdd(ip);
+            userBlackAdd(uid);
             return true;
         }
+    }
+
+    public void requestProductPathAdd(Integer uid) {
+        String key = String.format(RedisKeyUtil.REQUEST_PRODCUCT, uid);
+        redisService.set(key, "0");
+    }
+
+    public Boolean requestProductPathExists(Integer uid, String ip) {
+        String key = String.format(RedisKeyUtil.REQUEST_PRODCUCT, uid);
+        if (redisService.exists(key)) {
+            return true;
+        }
+        userIsBlack(uid);
+        if (ip != null) {
+            ipBlackAdd(ip);
+        }
+        return false;
     }
 
 

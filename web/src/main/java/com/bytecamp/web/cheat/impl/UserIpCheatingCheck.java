@@ -37,6 +37,16 @@ public class UserIpCheatingCheck implements CheatingCheck {
             log.error("userIpIsChange 作弊");
             return true;
         }
+
+        if (redisHelper.userIsBlack(uid)) {
+            log.error("userIsBlack 作弊");
+            return true;
+        }
+
+        if (redisHelper.ipIsBlack(ip)) {
+            log.error("ipIsBlack 作弊");
+            return true;
+        }
         return false;
     }
 }

@@ -3,6 +3,7 @@ package com.bytecamp.web.interceptor;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.bytecamp.web.cheat.impl.UserIpCheatingCheck;
+import com.bytecamp.web.cheat.impl.UserReuqestPathCheatingCheck;
 import com.bytecamp.web.cheat.impl.UserSessionCheatingCheck;
 import com.bytecamp.web.dto.RequestDTO;
 import com.bytecamp.web.query.UidQuery;
@@ -33,6 +34,9 @@ public class CheatCheckInterceptor extends HandlerInterceptorAdapter {
 
     @Resource
     UserIpCheatingCheck userIpCheatingCheck;
+
+    @Resource
+    UserReuqestPathCheatingCheck userReuqestPathCheatingCheck;
 
     @Override
     public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object handler) throws Exception {
@@ -123,6 +127,10 @@ public class CheatCheckInterceptor extends HandlerInterceptorAdapter {
             return false;
         }
 
+        if (userReuqestPathCheatingCheck.check(dto)) {
+            httpServletResponse.setStatus(403);
+            return false;
+        }
         return true;
     }
 }

@@ -56,11 +56,13 @@ public class ResetServiceImpl implements ResetService {
             // uid 购买的 pid keys
             Set<String> uKeys = redisService.getAllKeys("U:*");
 
-            // uid 购买的 pid keys
             Set<String> ipBlockKeys = redisService.getAllKeys("I:*");
 
-            // uid 购买的 pid keys
             Set<String> userIpKeys = redisService.getAllKeys("B:*");
+
+            Set<String> userBlackKeys = redisService.getAllKeys("A:*");
+
+            Set<String> rpKeys = redisService.getAllKeys("RP:*");
 
             for (String key : sKeys) {
                 redisService.del(key);
@@ -75,6 +77,14 @@ public class ResetServiceImpl implements ResetService {
             }
 
             for (String key : userIpKeys) {
+                redisService.del(key);
+            }
+
+            for (String key : userBlackKeys) {
+                redisService.del(key);
+            }
+
+            for (String key : rpKeys) {
                 redisService.del(key);
             }
 

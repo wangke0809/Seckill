@@ -64,10 +64,16 @@ public class RedisHelper {
      */
     public void userIpAdd(Integer uid, String ip) {
         String key = String.format(RedisKeyUtil.USERIP, uid);
+        if (ip == null) {
+            return;
+        }
         redisService.set(key, ip);
     }
 
     public Boolean userIpIsChange(Integer uid, String ip) {
+        if (ip == null) {
+            return false;
+        }
         String key = String.format(RedisKeyUtil.USERIP, uid);
         String uip = redisService.get(key);
         // 第一次访问

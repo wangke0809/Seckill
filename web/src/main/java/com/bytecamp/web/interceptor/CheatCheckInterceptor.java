@@ -116,10 +116,10 @@ public class CheatCheckInterceptor extends HandlerInterceptorAdapter {
         RequestDTO dto = new RequestDTO();
 
         if (ip == null) {
-//            httpServletResponse.setStatus(403);
+            httpServletResponse.setStatus(403);
             log.error("请求 ip 为空");
             // TODO: 正式时打开
-//            return false;
+            return false;
         }
 
         dto.setIp(ip);

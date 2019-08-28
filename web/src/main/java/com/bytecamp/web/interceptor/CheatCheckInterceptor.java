@@ -42,12 +42,12 @@ public class CheatCheckInterceptor extends HandlerInterceptorAdapter {
     public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object handler) throws Exception {
         String uri = httpServletRequest.getRequestURI();
 
-        if (uri.equals("/reset22222222223") || uri.equals("/reset")) {
-
-        } else {
-            httpServletResponse.setStatus(403);
-            return false;
-        }
+//        if (uri.equals("/reset22222222223") || uri.equals("/reset")) {
+//
+//        } else {
+//            httpServletResponse.setStatus(403);
+//            return false;
+//        }
 
 
         if (uri.equals("/reset22222222223") || uri.equals("/reset")) {

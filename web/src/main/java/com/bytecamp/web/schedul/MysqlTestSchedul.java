@@ -1,14 +1,13 @@
-package com.bytecamp.web.controller;
+package com.bytecamp.web.schedul;
 
+import com.bytecamp.biz.service.ProductService;
 import com.bytecamp.biz.service.RedisService;
 import com.bytecamp.dao.ProductMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.math.BigInteger;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -16,26 +15,30 @@ import java.util.concurrent.Executors;
 
 /**
  * @author wangke
- * @description: 测试控制器
- * @date 2019-07-27 02:11
+ * @description: TODO
+ * @date 2019-08-28 16:51
  */
-@Controller
 @Slf4j
-public class TestController {
-
-    @Resource(name = "productMapper")
-    private ProductMapper _mapper;
+//@Component
+public class MysqlTestSchedul {
 
     @Resource
     RedisService redisService;
 
-    @ResponseBody
-    @RequestMapping("/test")
-    public String test(Integer num) throws Exception {
-//        redisService.set("mysql", num.toString());
-        Integer n = Integer.valueOf(num);
+    @Resource(name = "productMapper")
+    private ProductMapper _mapper;
 
-//        redisService.del("mysql");
+    @Scheduled(fixedDelay = 1000)
+    public void task() throws Exception {
+        String nn = redisService.get("mysql");
+
+        if (nn == null) {
+            return;
+        }
+
+        Integer n = Integer.valueOf(nn);
+
+        redisService.del("mysql");
         ExecutorService service = Executors.newFixedThreadPool(n);
         CountDownLatch countDownLatch = new CountDownLatch(n);
         log.info("start " + n);
@@ -55,6 +58,6 @@ public class TestController {
 
         service.shutdown();
 
-        return "end " + (System.currentTimeMillis() - start) / 1000.0 + " s";
+
     }
 }

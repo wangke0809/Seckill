@@ -43,11 +43,12 @@ public class ProductController {
             httpServletResponse.setStatus(403);
             return null;
         }
-        if (pidLong < 133808073L || pidLong > 3163885158L) {
-            log.error("pid 范围异常");
-            httpServletResponse.setStatus(403);
-            return null;
-        }
+        
+//        if (pidLong < 133808073L || pidLong > 3163885158L) {
+//            log.error("pid 范围异常");
+//            httpServletResponse.setStatus(403);
+//            return null;
+//        }
         Product product = productService.getProductById(pidLong);
         if (product != null) {
             ProductVO vo = new ProductVO();

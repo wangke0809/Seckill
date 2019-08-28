@@ -10,7 +10,7 @@ mybatis:
 seckill:
   product:
     # 商品缓存时间
-    cache-time: 500
+    cache-time: 3600
   # 机器 id
   machine-id: ${SECKILL_ID:0}
 

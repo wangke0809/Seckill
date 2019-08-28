@@ -5,7 +5,7 @@ seckill:
   token:
     url: http://10.108.18.78:808/token
   reset:
-    token: testresettoken
+    token: 2549bf0c73798b98f2f2793e71889acf
   hosts: 10.108.18.79:8080,10.108.18.80:8080
 
 spring:

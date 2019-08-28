@@ -40,9 +40,9 @@ spring:
     druid:
       # 连接池的配置信息
       # 初始化大小，最小，最大
-      initial-size: 70
-      min-idle: 70
-      maxActive: 200
+      initial-size: 20
+      min-idle: 20
+      maxActive: 20
       # 配置获取连接等待超时的时间
       maxWait: 60000
       # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒

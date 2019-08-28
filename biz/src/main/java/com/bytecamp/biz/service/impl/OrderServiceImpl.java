@@ -8,24 +8,18 @@ import com.bytecamp.biz.enums.OrderStatusEnum;
 import com.bytecamp.biz.service.*;
 import com.bytecamp.biz.util.RedisKeyUtil;
 import com.bytecamp.dao.OrderMapper;
-import com.bytecamp.model.Order;
-import com.bytecamp.model.OrderSearch;
 import com.bytecamp.model.Product;
 import com.bytecamp.util.GenerateIDUtil;
 import com.bytecamp.util.HttpUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
-import javax.jms.Message;
-import javax.jms.TextMessage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * @author wangke
@@ -55,7 +49,7 @@ public class OrderServiceImpl implements OrderService {
     String tokenUrl;
 
     // 内存存储库存状态，如果为真表示库存售罄
-    private HashMap<Long, Boolean> stockHashMap = new HashMap<>(2000);
+    private HashMap<Long, Boolean> stockHashMap = new HashMap<>(5000);
 
     /**
      * 插入订单数据

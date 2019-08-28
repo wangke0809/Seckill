@@ -5,6 +5,7 @@ import com.bytecamp.biz.service.RedisService;
 import com.bytecamp.biz.service.ResetService;
 import com.bytecamp.biz.util.RedisKeyUtil;
 import com.bytecamp.dao.OrderMapper;
+import com.bytecamp.util.HttpUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,9 @@ import java.util.Set;
 @Service
 @Slf4j
 public class ResetServiceImpl implements ResetService {
+
+    @Value("${seckill.hosts}")
+    private String hosts;
 
     @Resource
     OrderService orderService;
@@ -53,36 +57,39 @@ public class ResetServiceImpl implements ResetService {
             // 库存 keys
             Set<String> sKeys = redisService.getAllKeys("S:*");
 
-            // uid 购买的 pid keys
-            Set<String> uKeys = redisService.getAllKeys("U:*");
-
-            Set<String> ipBlockKeys = redisService.getAllKeys("I:*");
-
-            Set<String> userIpKeys = redisService.getAllKeys("B:*");
-
-            Set<String> userBlackKeys = redisService.getAllKeys("A:*");
-
-            Set<String> rpKeys = redisService.getAllKeys("RP:*");
-
             for (String key : sKeys) {
                 redisService.del(key);
             }
+
+            // uid 购买的 pid keys
+            Set<String> uKeys = redisService.getAllKeys("U:*");
 
             for (String key : uKeys) {
                 redisService.del(key);
             }
 
+
+            Set<String> ipBlockKeys = redisService.getAllKeys("I:*");
+
             for (String key : ipBlockKeys) {
                 redisService.del(key);
             }
+
+            Set<String> userIpKeys = redisService.getAllKeys("B:*");
+
 
             for (String key : userIpKeys) {
                 redisService.del(key);
             }
 
+
+            Set<String> userBlackKeys = redisService.getAllKeys("A:*");
+
             for (String key : userBlackKeys) {
                 redisService.del(key);
             }
+
+            Set<String> rpKeys = redisService.getAllKeys("RP:*");
 
             for (String key : rpKeys) {
                 redisService.del(key);
@@ -99,6 +106,19 @@ public class ResetServiceImpl implements ResetService {
                 }
                 redisService.del(uid);
             }
+
+            String[] host = hosts.split(",");
+
+            try {
+                for (String s : host) {
+                    log.info("reset others http://" + s + "/reset22222222223");
+                    String res = HttpUtil.get("http://" + s + "/reset22222222223");
+                    log.info(" reset22222222223 {} {}", s, res);
+                }
+            } catch (Exception e) {
+
+            }
+
 
             log.info("[ reset] reset 成功");
 

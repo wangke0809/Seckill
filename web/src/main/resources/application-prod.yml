@@ -6,6 +6,7 @@ seckill:
     url: http://10.108.18.78:808/token
   reset:
     token: testresettoken
+  hosts: 10.108.18.79:8080,10.108.18.80:8080
 
 spring:
   profiles: prod

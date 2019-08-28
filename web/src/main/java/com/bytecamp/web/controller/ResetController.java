@@ -1,5 +1,6 @@
 package com.bytecamp.web.controller;
 
+import com.bytecamp.biz.service.OrderService;
 import com.bytecamp.biz.service.ResetService;
 import com.bytecamp.web.enums.ResetStatusEnum;
 import com.bytecamp.web.query.PayQuery;
@@ -7,8 +8,11 @@ import com.bytecamp.web.query.ResetQuery;
 import com.bytecamp.web.util.JsonRequestUtil;
 import com.bytecamp.web.vo.ResetResultVO;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
@@ -22,6 +26,9 @@ import javax.servlet.http.HttpServletRequest;
 @Controller
 @Slf4j
 public class ResetController {
+
+    @Resource
+    OrderService orderService;
 
     @Resource
     ResetService resetService;
@@ -40,7 +47,7 @@ public class ResetController {
         try {
             if (resetService.reset(resetQuery.getToken())) {
                 vo.setCode(ResetStatusEnum.SUCCESS.getValue());
-            }else{
+            } else {
                 vo.setCode(ResetStatusEnum.FAILURE.getValue());
             }
         } catch (Exception e) {
@@ -49,5 +56,13 @@ public class ResetController {
         }
 
         return vo;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/reset22222222223", method = RequestMethod.GET)
+    public String reset2() {
+        orderService.stockMapClear();
+        log.info("reset22222222223");
+        return "OK";
     }
 }

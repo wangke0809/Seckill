@@ -19,17 +19,17 @@ public class HttpUtilTest extends BaseTest {
     String url;
 
     @Test
-    public void httpPostJson() throws Exception{
+    public void httpPostJson() throws Exception {
 
         ExecutorService executorService = Executors.newFixedThreadPool(1000);
         CountDownLatch countDownLatch = new CountDownLatch(1000);
 
-        for(int i=0;i<2;i++){
-            executorService.execute(()->{
-                try{
+        for (int i = 0; i < 2; i++) {
+            executorService.execute(() -> {
+                try {
                     String res = HttpUtil.postJson(url, null);
                     System.out.println(res);
-                }catch (Exception e){
+                } catch (Exception e) {
                     System.out.println(e);
                 }
                 countDownLatch.countDown();
@@ -41,5 +41,11 @@ public class HttpUtilTest extends BaseTest {
 
         executorService.shutdown();
 
+    }
+
+    @Test
+    public void get() throws Exception {
+        String res = HttpUtil.get("http://127.0.0.1:8999/reset22222222223");
+        System.out.println(res);
     }
 }

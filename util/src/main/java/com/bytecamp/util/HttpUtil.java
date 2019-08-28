@@ -40,4 +40,13 @@ public class HttpUtil {
         return response.body().string();
     }
 
+    public static String get(String url) throws IOException {
+        Request request = new Request.Builder().url(url).get().build();
+        Response response = execute(request);
+        if (!response.isSuccessful()) {
+            throw new IOException("Unexpected code " + response);
+        }
+        return response.body().string();
+    }
+
 }

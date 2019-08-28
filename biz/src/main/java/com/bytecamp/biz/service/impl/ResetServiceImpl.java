@@ -1,6 +1,7 @@
 package com.bytecamp.biz.service.impl;
 
 import com.bytecamp.biz.service.OrderService;
+import com.bytecamp.biz.service.RedisDB1Service;
 import com.bytecamp.biz.service.RedisService;
 import com.bytecamp.biz.service.ResetService;
 import com.bytecamp.biz.util.RedisKeyUtil;
@@ -31,7 +32,7 @@ public class ResetServiceImpl implements ResetService {
     OrderService orderService;
 
     @Resource
-    RedisService redisService;
+    RedisDB1Service db1Service;
 
     @Value("${seckill.reset.token}")
     String token;
@@ -54,58 +55,9 @@ public class ResetServiceImpl implements ResetService {
             // TODO: 键用常量获取 format(KEY, "*")
             orderService.stockMapClear();
 
-            // 库存 keys
-            Set<String> sKeys = redisService.getAllKeys("S:*");
+            Long start = System.currentTimeMillis();
 
-            for (String key : sKeys) {
-                redisService.del(key);
-            }
-
-            // uid 购买的 pid keys
-            Set<String> uKeys = redisService.getAllKeys("U:*");
-
-            for (String key : uKeys) {
-                redisService.del(key);
-            }
-
-
-            Set<String> ipBlockKeys = redisService.getAllKeys("I:*");
-
-            for (String key : ipBlockKeys) {
-                redisService.del(key);
-            }
-
-            Set<String> userIpKeys = redisService.getAllKeys("B:*");
-
-
-            for (String key : userIpKeys) {
-                redisService.del(key);
-            }
-
-
-            Set<String> userBlackKeys = redisService.getAllKeys("A:*");
-
-            for (String key : userBlackKeys) {
-                redisService.del(key);
-            }
-
-            Set<String> rpKeys = redisService.getAllKeys("RP:*");
-
-            for (String key : rpKeys) {
-                redisService.del(key);
-            }
-
-            Set<String> uidKeys = redisService.getAllKeys("R:*");
-
-            for (String uid : uidKeys) {
-                String userOrders = String.format(RedisKeyUtil.USERORDER, uid.substring(2, uid.length()));
-                List<String> orderOds = redisService.lrange(userOrders, 0, -1);
-                for (String orderId : orderOds) {
-                    String orderKey = String.format(RedisKeyUtil.ORDER, orderId);
-                    redisService.del(orderKey);
-                }
-                redisService.del(uid);
-            }
+            db1Service.flushdb();
 
             String[] host = hosts.split(",");
 
@@ -120,7 +72,7 @@ public class ResetServiceImpl implements ResetService {
             }
 
 
-            log.info("[ reset] reset 成功");
+            log.info("[ reset] reset 成功 time: {}", (System.currentTimeMillis() - start) / 1000.0);
 
             return true;
 

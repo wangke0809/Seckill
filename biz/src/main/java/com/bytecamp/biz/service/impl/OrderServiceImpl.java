@@ -45,6 +45,9 @@ public class OrderServiceImpl implements OrderService {
     @Resource
     RedisLuaHelper redisLuaHelper;
 
+    @Resource
+    RedisDB1Service db1Service;
+
     @Value("${seckill.token.url}")
     String tokenUrl;
 
@@ -102,24 +105,24 @@ public class OrderServiceImpl implements OrderService {
         // }
 
         // 判断是否已经购买
-        if (redisService.set(uidPidKey, "1", "NX") == null) {
+        if (db1Service.set(uidPidKey, "1", "NX") == null) {
             log.info("[ addOrder ] uid {} pid {} 重复下单", uid, productId);
             return null;
         }
 
         // 商品库存是否存储在 redis 中
         if (!stockHashMap.keySet().contains(productId)) {
-            redisService.set(key, product.getCount().toString(), "NX");
+            db1Service.set(key, product.getCount().toString(), "NX");
             stockHashMap.put(productId, false);
         }
 
         // 减库存，判断库存是否足够
-        Long stock = redisService.decr(key);
+        Long stock = db1Service.decr(key);
 
         if (stock == null) {
             log.error("[ addOrder] 从 redis 获取库存信息失败");
             // 删除 uid 与 pid 锁定关系
-            redisService.del(uidPidKey);
+            db1Service.del(uidPidKey);
             return null;
         }
 
@@ -128,7 +131,7 @@ public class OrderServiceImpl implements OrderService {
             // 记录到内存
             stockHashMap.put(productId, true);
             // 删除 uid 与 pid 锁定关系
-            redisService.del(uidPidKey);
+            db1Service.del(uidPidKey);
             log.info("[ addOrder ] {} 库存不够，商品售罄", uidPidKey);
             return null;
         }
@@ -146,11 +149,11 @@ public class OrderServiceImpl implements OrderService {
         order.setPrice(product.getPrice());
         order.setOrderStatus(OrderStatusEnum.UNFINISH.getValue());
         order.setToken(null);
-        redisService.set(orderKey, JSON.toJSONString(order));
+        db1Service.set(orderKey, JSON.toJSONString(order));
 
         String userOrders = String.format(RedisKeyUtil.USERORDER, uid);
 
-        redisService.lpush(userOrders, orderId);
+        db1Service.lpush(userOrders, orderId);
 
         log.info("下单完成 orderId {} uid {} pid {}", orderId, uid, pid);
 
@@ -176,7 +179,7 @@ public class OrderServiceImpl implements OrderService {
         OrderDto order = null;
 
         String orderKey = String.format(RedisKeyUtil.ORDER, orderId);
-        String orderString = redisService.get(orderKey);
+        String orderString = db1Service.get(orderKey);
 
         if (orderString != null) {
             try {
@@ -237,7 +240,7 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderStatus(OrderStatusEnum.FINISH.getValue());
         order.setToken(tokenDto.getToken());
 
-        redisService.set(orderKey, JSON.toJSONString(order));
+        db1Service.set(orderKey, JSON.toJSONString(order));
 
         return tokenDto.getToken();
 
@@ -252,11 +255,11 @@ public class OrderServiceImpl implements OrderService {
     public List<OrderDto> getAllOrders(Integer uid) {
         List<OrderDto> list = new ArrayList<>();
         String userOrders = String.format(RedisKeyUtil.USERORDER, uid);
-        List<String> orderOds = redisService.lrange(userOrders, 0, -1);
+        List<String> orderOds = db1Service.lrange(userOrders, 0, -1);
         for (String orderId : orderOds) {
             try {
                 String orderKey = String.format(RedisKeyUtil.ORDER, orderId);
-                String orderString = redisService.get(orderKey);
+                String orderString = db1Service.get(orderKey);
                 OrderDto order = JSON.parseObject(orderString, OrderDto.class);
                 list.add(order);
             } catch (Exception e) {
@@ -276,37 +279,37 @@ public class OrderServiceImpl implements OrderService {
      * @param uid
      * @param productId
      */
-    public void orderRollBack(Integer uid, Long productId, String orderid) {
-
-        log.info("[订单回滚] 开始");
-
-        // 库存 key
-        String key = String.format(RedisKeyUtil.STOCK, productId);
-
-        // uid 是否购买 pid key， 解决是否重复下单
-        String uidPidKey = String.format(RedisKeyUtil.USERPRODUCT, uid, productId);
-
-        redisLuaHelper.stockIncr(key);
-        redisService.del(uidPidKey);
-
-        // 存在并发竞争，不过没关系
-        stockHashMap.put(productId, false);
-
-        if (orderid != null) {
-            String orderKey = String.format(RedisKeyUtil.ORDER, orderid);
-            String token = redisService.get(orderKey);
-            // 插入数据库失败但是已经支付了
-            if (!token.equals("0")) {
-                log.error("[严重错误] 订单 {} 保存失败但是已经支付 {}", orderid, token);
-            } else {
-                redisService.del(orderKey);
-            }
-        }
-
-
-        log.info("[订单回滚] 结束");
-
-    }
+//    public void orderRollBack(Integer uid, Long productId, String orderid) {
+//
+//        log.info("[订单回滚] 开始");
+//
+//        // 库存 key
+//        String key = String.format(RedisKeyUtil.STOCK, productId);
+//
+//        // uid 是否购买 pid key， 解决是否重复下单
+//        String uidPidKey = String.format(RedisKeyUtil.USERPRODUCT, uid, productId);
+//
+//        redisLuaHelper.stockIncr(key);
+//        redisService.del(uidPidKey);
+//
+//        // 存在并发竞争，不过没关系
+//        stockHashMap.put(productId, false);
+//
+//        if (orderid != null) {
+//            String orderKey = String.format(RedisKeyUtil.ORDER, orderid);
+//            String token = redisService.get(orderKey);
+//            // 插入数据库失败但是已经支付了
+//            if (!token.equals("0")) {
+//                log.error("[严重错误] 订单 {} 保存失败但是已经支付 {}", orderid, token);
+//            } else {
+//                redisService.del(orderKey);
+//            }
+//        }
+//
+//
+//        log.info("[订单回滚] 结束");
+//
+//    }
 
     /**
      * 情况 hashmap

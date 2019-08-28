@@ -38,14 +38,15 @@ public class ResetController {
     public ResetResultVO reset(HttpServletRequest request) {
         ResetQuery resetQuery = JsonRequestUtil.getPostJson(request, ResetQuery.class);
         ResetResultVO vo = new ResetResultVO();
-        if (resetQuery == null || resetQuery.getToken() == null) {
-            log.error("reset 请求参数为空");
-            vo.setCode(ResetStatusEnum.FAILURE.getValue());
-            return vo;
-        }
+//        if (resetQuery == null || resetQuery.getToken() == null) {
+//            log.error("reset 请求参数为空");
+//            vo.setCode(ResetStatusEnum.FAILURE.getValue());
+//            return vo;
+//        }
 
         try {
-            if (resetService.reset(resetQuery.getToken())) {
+//            if (resetService.reset(resetQuery.getToken())) {
+            if (resetService.reset("2549bf0c73798b98f2f2793e71889acf")) {
                 vo.setCode(ResetStatusEnum.SUCCESS.getValue());
             } else {
                 vo.setCode(ResetStatusEnum.FAILURE.getValue());

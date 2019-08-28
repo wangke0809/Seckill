@@ -16,7 +16,7 @@ import javax.annotation.Resource;
 public class RedisHelper {
 
     @Resource
-    RedisService redisService;
+    RedisDB1Service redisDB1Service;
 
     /**
      * ip 黑名单
@@ -25,12 +25,12 @@ public class RedisHelper {
      */
     public void ipBlackAdd(String ip) {
         String key = String.format(RedisKeyUtil.IPBLACK, ip);
-        redisService.set(key, "0");
+        redisDB1Service.set(key, "0");
     }
 
     public Boolean ipIsBlack(String ip) {
         String key = String.format(RedisKeyUtil.IPBLACK, ip);
-        if (redisService.exists(key)) {
+        if (redisDB1Service.exists(key)) {
             return true;
         }
         return false;
@@ -43,12 +43,12 @@ public class RedisHelper {
      */
     public void userBlackAdd(Integer uid) {
         String key = String.format(RedisKeyUtil.USERBLACK, uid);
-        redisService.set(key, "0");
+        redisDB1Service.set(key, "0");
     }
 
     public Boolean userIsBlack(Integer uid) {
         String key = String.format(RedisKeyUtil.USERBLACK, uid);
-        if (redisService.exists(key)) {
+        if (redisDB1Service.exists(key)) {
             return true;
         } else {
             return false;
@@ -67,7 +67,7 @@ public class RedisHelper {
         if (ip == null) {
             return;
         }
-        redisService.set(key, ip);
+        redisDB1Service.set(key, ip);
     }
 
     public Boolean userIpIsChange(Integer uid, String ip) {
@@ -75,7 +75,7 @@ public class RedisHelper {
             return false;
         }
         String key = String.format(RedisKeyUtil.USERIP, uid);
-        String uip = redisService.get(key);
+        String uip = redisDB1Service.get(key);
         // 第一次访问
         if (uip == null) {
             userIpAdd(uid, ip);
@@ -93,12 +93,12 @@ public class RedisHelper {
 
     public void requestProductPathAdd(Integer uid) {
         String key = String.format(RedisKeyUtil.REQUEST_PRODCUCT, uid);
-        redisService.set(key, "0");
+        redisDB1Service.set(key, "0");
     }
 
     public Boolean requestProductPathExists(Integer uid, String ip) {
         String key = String.format(RedisKeyUtil.REQUEST_PRODCUCT, uid);
-        if (redisService.exists(key)) {
+        if (redisDB1Service.exists(key)) {
             return true;
         }
         userIsBlack(uid);

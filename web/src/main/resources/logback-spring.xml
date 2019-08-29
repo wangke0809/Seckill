@@ -11,7 +11,7 @@
     <!-- <property name="log.path" value="/opt/logs/" />-->
     <springProfile name="dev">
         <property name="log.path" value="logs/"/>
-        <logger name="com.sdcm.pmp" level="none"/>
+        <logger name="com.sdcm.pmp" level="debug"/>
     </springProfile>
     <springProfile name="prod">
         <property name="log.path" value="/opt/logs/"/>
@@ -187,7 +187,7 @@
     </root>
     <root level="info">
         <appender-ref ref="INFO_FILE"/>
-        <!--        <appender-ref ref="WARN_FILE" />-->
+        <appender-ref ref="WARN_FILE"/>
         <appender-ref ref="ERROR_FILE"/>
     </root>
     <root level="none">

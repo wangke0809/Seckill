@@ -190,7 +190,5 @@
         <appender-ref ref="WARN_FILE"/>
         <appender-ref ref="ERROR_FILE"/>
     </root>
-    <root level="none">
-    </root>
 
 </configuration>

@@ -95,7 +95,7 @@ public class OrderController {
                 return null;
             }
             if (orderId.length() != 27) {
-                log.error("orderId 不符合规则 {}", orderId);
+                log.error("orderId 不符合规则 {} end", orderId);
                 httpServletResponse.setStatus(403);
                 return null;
             }

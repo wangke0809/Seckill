@@ -186,7 +186,7 @@
         <appender-ref ref="ERROR_FILE"/>
     </root>
     <root level="info">
-        <!--        <appender-ref ref="INFO_FILE" />-->
+        <appender-ref ref="INFO_FILE"/>
         <!--        <appender-ref ref="WARN_FILE" />-->
         <appender-ref ref="ERROR_FILE"/>
     </root>

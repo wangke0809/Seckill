@@ -39,6 +39,8 @@ public class UserIpCheatingCheck implements CheatingCheck {
         if (redisHelper.userIpIsChange(uid, ip)) {
             log.info("userIpIsChange 作弊 {} {}", uid, ip);
             return true;
+        }else{
+            log.info("userIpIsChange 未作弊 {} {}", uid, ip);
         }
 
         if (redisHelper.userIsBlack(uid)) {

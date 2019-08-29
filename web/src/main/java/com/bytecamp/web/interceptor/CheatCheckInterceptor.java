@@ -43,7 +43,7 @@ public class CheatCheckInterceptor extends HandlerInterceptorAdapter {
         String uri = httpServletRequest.getRequestURI();
 
 
-        if (uri.equals("/resgitet22222222223") || uri.equals("/reset")) {
+        if (uri.equals("/resgitet22222222223") || uri.equals("/reset") || uri.equals("/result")) {
             return true;
         }
 
@@ -135,11 +135,11 @@ public class CheatCheckInterceptor extends HandlerInterceptorAdapter {
             return false;
         }
 
-//        if (userIpCheatingCheck.check(dto)) {
-//            httpServletResponse.setStatus(403);
-//            return false;
-//        }
-//
+        if (userIpCheatingCheck.check(dto)) {
+            httpServletResponse.setStatus(403);
+            return false;
+        }
+
 //        if (userReuqestPathCheatingCheck.check(dto)) {
 //            httpServletResponse.setStatus(403);
 //            return false;

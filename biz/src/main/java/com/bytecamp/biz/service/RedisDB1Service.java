@@ -154,7 +154,7 @@ public class RedisDB1Service {
         jedis.select(1);
         Long res = null;
         try {
-            res = jedis.lpush(key);
+            res = jedis.lpush(key, string);
         } catch (Exception e) {
             log.error("redis error", e);
         } finally {

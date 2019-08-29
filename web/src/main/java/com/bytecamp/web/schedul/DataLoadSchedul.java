@@ -11,7 +11,9 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.InputStreamReader;
 
 /**
  * @author wangke
@@ -41,8 +43,7 @@ public class DataLoadSchedul {
         }
         try {
             String path = "/var/lib/mysql-files/student.txt";
-            FileReader fr = new FileReader(path);
-            BufferedReader bf = new BufferedReader(fr);
+            BufferedReader bf = new BufferedReader(new InputStreamReader(new FileInputStream(path), "UTF-8"));
             String str;
             int i = 0;
             while ((str = bf.readLine()) != null) {

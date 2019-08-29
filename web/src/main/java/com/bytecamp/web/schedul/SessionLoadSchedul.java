@@ -34,6 +34,7 @@ public class SessionLoadSchedul {
     @Scheduled(fixedDelay = 5000)
     public void task() throws Exception {
         if (machineId != 1) {
+            log.info("加载 session return");
             return;
         }
         // 如果 redis 中不存在 session ，从数据库中加载

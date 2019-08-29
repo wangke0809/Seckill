@@ -47,7 +47,8 @@ public class CheatCheckInterceptor extends HandlerInterceptorAdapter {
             Random random = new Random(1);
             if (random.nextInt() % 2 == 0) {
                 httpServletResponse.setStatus(403);
-                return true;
+                log.info("403333");
+                return false;
             }
 
         }

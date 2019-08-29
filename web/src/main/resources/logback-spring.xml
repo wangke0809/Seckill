@@ -11,11 +11,11 @@
     <!-- <property name="log.path" value="/opt/logs/" />-->
     <springProfile name="dev">
         <property name="log.path" value="logs/" />
-        <logger name="com.sdcm.pmp" level="debug"/>
+        <logger name="com.sdcm.pmp" level="none"/>
     </springProfile>
     <springProfile name="prod">
         <property name="log.path" value="/opt/logs/" />
-        <logger name="com.sdcm.pmp" level="info"/>
+        <logger name="com.sdcm.pmp" level="none"/>
     </springProfile>
     <!--0. 日志格式和颜色渲染 -->
     <!-- 彩色日志依赖的渲染类 -->
@@ -185,6 +185,8 @@
         <appender-ref ref="INFO_FILE" />
         <appender-ref ref="WARN_FILE" />
         <appender-ref ref="ERROR_FILE" />
+    </root>
+    <root level="none">
     </root>
 
 </configuration>

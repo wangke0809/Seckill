@@ -42,34 +42,28 @@ public class CheatCheckInterceptor extends HandlerInterceptorAdapter {
     public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object handler) throws Exception {
         String uri = httpServletRequest.getRequestURI();
 
-//        if (uri.equals("/reset22222222223") || uri.equals("/reset")) {
-//
-//        } else {
-//            httpServletResponse.setStatus(403);
-//            return false;
-//        }
-
 
         if (uri.equals("/resgitet22222222223") || uri.equals("/reset")) {
             return true;
         }
 
-        if (uri.equals("/product") || uri.equals("/order") || uri.equals("/pay")
-                || uri.equals("/result")) {
-
-        } else {
-            log.error("请求不存在的接口");
-            httpServletResponse.setStatus(403);
-            return false;
-        }
-        String ua = httpServletRequest.getHeader("User-Agent");
-
-        // ua 反作弊判断，正常情况下在 Nginx 层已经被过滤
-//        if (StringUtils.isEmpty(ua) || ua.contains("spider")) {
-//            log.error("ua 为空");
+//        if (uri.equals("/product") || uri.equals("/order") || uri.equals("/pay")
+//                || uri.equals("/result")) {
+//
+//        } else {
+//            log.error("请求不存在的接口");
 //            httpServletResponse.setStatus(403);
 //            return false;
 //        }
+
+        String ua = httpServletRequest.getHeader("User-Agent");
+
+//         ua 反作弊判断，正常情况下在 Nginx 层已经被过滤
+        if (StringUtils.isEmpty(ua) || ua.contains("spider")) {
+            log.error("ua 为空");
+            httpServletResponse.setStatus(403);
+            return false;
+        }
 
         Integer uid = null;
         String ip = httpServletRequest.getHeader("X-Forwarded-For");
@@ -141,15 +135,6 @@ public class CheatCheckInterceptor extends HandlerInterceptorAdapter {
             return false;
         }
 
-        if (userIpCheatingCheck.check(dto)) {
-            httpServletResponse.setStatus(403);
-            return false;
-        }
-
-        if (userReuqestPathCheatingCheck.check(dto)) {
-            httpServletResponse.setStatus(403);
-            return false;
-        }
 
         return true;
     }

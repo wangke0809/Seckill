@@ -43,13 +43,11 @@ public class CheatCheckInterceptor extends HandlerInterceptorAdapter {
     public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object handler) throws Exception {
         String uri = httpServletRequest.getRequestURI();
 
-        if (uri.equals("/product")) {
-            Random random = new Random(1);
-            if (random.nextInt() % 2 == 0) {
-                httpServletResponse.setStatus(403);
-                log.info("403333");
-                return false;
-            }
+
+        if (true) {
+            httpServletResponse.setStatus(403);
+            log.info("403333");
+            return false;
 
         }
 

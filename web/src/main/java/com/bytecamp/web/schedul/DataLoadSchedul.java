@@ -55,9 +55,11 @@ public class DataLoadSchedul {
                 dto.setPrice(Integer.valueOf(d[1]));
                 String key = String.format(RedisKeyUtil.PRODUCT, dto.getId());
                 redisService.setex(key, 360000, JSON.toJSONString(dto));
-                log.info("i " + i);
+                if (i % 10000 == 0) {
+                    log.info("data load {}", i);
+                }
                 i++;
-                if (i == 2000000) {
+                if (i == 4000000) {
                     break;
                 }
             }

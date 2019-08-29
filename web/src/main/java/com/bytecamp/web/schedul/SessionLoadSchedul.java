@@ -5,6 +5,7 @@ import com.bytecamp.biz.service.SessionService;
 import com.bytecamp.biz.util.RedisKeyUtil;
 import com.bytecamp.model.Sessions;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.annotation.Schedules;
 import org.springframework.stereotype.Component;
@@ -27,23 +28,29 @@ public class SessionLoadSchedul {
     @Resource
     SessionService sessionService;
 
+    @Value("${seckill.machine-id}")
+    private int machineId;
+
     @Scheduled(fixedDelay = 5000)
-    public void task() throws Exception{
+    public void task() throws Exception {
+        if (machineId != 1) {
+            return;
+        }
         // 如果 redis 中不存在 session ，从数据库中加载
         if (!redisService.exists(RedisKeyUtil.SESSION)) {
             // redis 重启 或者 集群竞争时，避免重复导入
             Thread.sleep(10000);
-            if(redisService.exists(RedisKeyUtil.SESSION)){
+            if (redisService.exists(RedisKeyUtil.SESSION)) {
                 return;
             }
             Long start = System.currentTimeMillis();
             log.info("开始从数据库中加载 session");
             final List<Sessions> all = sessionService.getAll();
             log.info("共需要加载 {} 条数据", all.size());
-            for(Sessions s : all){
+            for (Sessions s : all) {
                 redisService.hset(RedisKeyUtil.SESSION, s.getSessionId(), s.getId().toString());
             }
-            log.info("结束从数据库中加载 session, 用时 {} s", (System.currentTimeMillis()-start)/1000.0);
+            log.info("结束从数据库中加载 session, 用时 {} s", (System.currentTimeMillis() - start) / 1000.0);
         }
     }
 }

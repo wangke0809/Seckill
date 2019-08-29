@@ -5,6 +5,7 @@ import com.bytecamp.biz.dto.ProductDto;
 import com.bytecamp.biz.service.RedisService;
 import com.bytecamp.biz.util.RedisKeyUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -18,21 +19,27 @@ import java.io.FileReader;
  * @date 2019-08-29 04:21
  */
 @Slf4j
-//@Component
+@Component
 public class DataLoadSchedul {
 
-    int f = 0;
+    @Value("${seckill.machine-id}")
+    private int machineId;
 
     @Resource
     RedisService redisService;
 
     @Scheduled(fixedDelay = 5000)
     public void task() throws Exception {
-        if (f != 0) {
+        if (machineId != 3) {
             return;
         }
-        f++;
-        try{
+        String need = redisService.get("loaddata");
+        if (need == null) {
+
+        } else {
+            return;
+        }
+        try {
             String path = "/var/lib/mysql-files/student.txt";
             FileReader fr = new FileReader(path);
             BufferedReader bf = new BufferedReader(fr);
@@ -53,7 +60,8 @@ public class DataLoadSchedul {
                     break;
                 }
             }
-        }catch (Exception e){
+            redisService.set("loaddata", "1");
+        } catch (Exception e) {
 
         }
 

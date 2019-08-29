@@ -137,10 +137,10 @@ public class CheatCheckInterceptor extends HandlerInterceptorAdapter {
 
         log.info("uid {} ip {}", uid, ip);
 
-//        if (userIpCheatingCheck.check(dto)) {
-//            httpServletResponse.setStatus(403);
-//            return false;
-//        }
+        if (userIpCheatingCheck.check(dto)) {
+            httpServletResponse.setStatus(403);
+            return false;
+        }
 
 //        if (userReuqestPathCheatingCheck.check(dto)) {
 //            httpServletResponse.setStatus(403);

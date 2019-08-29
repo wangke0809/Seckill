@@ -125,7 +125,11 @@ public class OrderController {
 
     @ResponseBody
     @GetMapping("/result")
-    public AllOrderVO result(Integer uid) {
+    public AllOrderVO result(Integer uid, HttpServletResponse httpServletResponse) {
+        if (uid == null) {
+            httpServletResponse.setStatus(403);
+            return null;
+        }
         AllOrderVO allOrderVO = new AllOrderVO();
         List<OrderVO> data = new ArrayList<>();
         allOrderVO.setData(data);

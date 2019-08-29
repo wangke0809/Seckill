@@ -33,6 +33,9 @@ public class UserIpCheatingCheck implements CheatingCheck {
         }
         String ip = dto.getIp();
         Integer uid = dto.getUid();
+        if (uid == null || ip == null) {
+            return false;
+        }
         if (redisHelper.userIpIsChange(uid, ip)) {
             log.info("userIpIsChange 作弊 {} {}", uid, ip);
             return true;

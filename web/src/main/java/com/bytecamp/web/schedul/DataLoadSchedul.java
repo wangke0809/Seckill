@@ -18,7 +18,7 @@ import java.io.FileReader;
  * @date 2019-08-29 04:21
  */
 @Slf4j
-@Component
+//@Component
 public class DataLoadSchedul {
 
     int f = 0;

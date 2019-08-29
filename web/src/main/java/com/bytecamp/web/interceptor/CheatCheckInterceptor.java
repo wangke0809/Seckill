@@ -42,6 +42,9 @@ public class CheatCheckInterceptor extends HandlerInterceptorAdapter {
     public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object handler) throws Exception {
         String uri = httpServletRequest.getRequestURI();
 
+        if (uri.equals("/product")) {
+            return true;
+        }
 
         if (uri.equals("/resgitet22222222223") || uri.equals("/reset") || uri.equals("/result")) {
             return true;

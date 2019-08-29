@@ -67,7 +67,7 @@ spring:
         exclusions: "*.js,*.gif,*.jpg,*.bmp,*.png,*.css,*.ico,/druid/*"
       # 配置DruidStatViewServlet
       stat-view-servlet:
-        enabled: true
+        enabled: false
         url-pattern: "/druid/*"
         # IP白名单(没有配置或者为空，则允许所有访问)
         # allow: 127.0.0.1

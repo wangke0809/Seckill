@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.Random;
 
 /**
  * @author wangke
@@ -43,7 +44,12 @@ public class CheatCheckInterceptor extends HandlerInterceptorAdapter {
         String uri = httpServletRequest.getRequestURI();
 
         if (uri.equals("/product")) {
-            return true;
+            Random random = new Random(1);
+            if (random.nextInt() % 2 == 0) {
+                httpServletResponse.setStatus(403);
+                return true;
+            }
+
         }
 
         if (uri.equals("/resgitet22222222223") || uri.equals("/reset") || uri.equals("/result")) {

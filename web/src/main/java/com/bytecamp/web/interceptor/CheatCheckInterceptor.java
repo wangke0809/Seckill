@@ -50,7 +50,7 @@ public class CheatCheckInterceptor extends HandlerInterceptorAdapter {
 //        }
 
 
-        if (uri.equals("/reset22222222223") || uri.equals("/reset")) {
+        if (uri.equals("/resgitet22222222223") || uri.equals("/reset")) {
             return true;
         }
 

@@ -61,6 +61,7 @@ public class DataLoadSchedul {
                     break;
                 }
             }
+            bf.close();
             redisService.set("loaddata", "1");
         } catch (Exception e) {
 

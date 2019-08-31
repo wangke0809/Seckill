@@ -110,7 +110,7 @@ Web 服务层实现
 
 ### Nginx (ngxtop)
 
-[配置](./tree/redis//web/src/main/resources/nginx/)
+[配置](https://github.com/wangke0809/Seckill/tree/redis//web/src/main/resources/nginx/)
 
 ![](./docs/4.png)
 
@@ -124,7 +124,7 @@ Web 服务层实现
 
 ### 自动化构建
 
-[配置](./tree/redis//web/src/main/resources/jenkins/)
+[配置](https://github.com/wangke0809/Seckill/tree/redis//web/src/main/resources/jenkins/)
 
 ![](./docs/7.png)
 
@@ -164,5 +164,5 @@ Mentor 们都很负责，优秀，ByteDance NB 啊...
 
 服务启动后访问 `http://127.0.0.1:8080/test` 查看 Hello World！
 
-数据库结构及测试：[database](./tree/redis//web/src/main/resources/database/)
+数据库结构及测试：[database](https://github.com/wangke0809/Seckill/tree/redis//web/src/main/resources/database/)
 

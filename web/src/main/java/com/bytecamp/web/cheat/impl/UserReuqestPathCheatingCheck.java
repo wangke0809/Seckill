@@ -5,7 +5,6 @@ import com.bytecamp.web.cheat.CheatingCheck;
 import com.bytecamp.web.dto.RequestDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 
